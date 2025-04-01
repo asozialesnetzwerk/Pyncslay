@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#coding:utf8
+# coding:utf8
 
 
 # *** TROUBLESHOOTING ***
@@ -8,6 +8,7 @@
 
 import codecs
 import sys
+
 # try:
 #     if (sys.version_info.major != 2) or (sys.version_info.minor < 7):
 #         raise Exception("You must build Syncplay with Python 2.7!")
@@ -21,6 +22,7 @@ import subprocess
 from string import Template
 
 from distutils.core import setup
+
 try:
     from py2exe.build_exe import py2exe
 except ImportError:
@@ -32,7 +34,9 @@ from syncplay.messages import getMissingStrings, getMessage, getLanguages
 missingStrings = getMissingStrings()
 if missingStrings is not None and missingStrings != "":
     import warnings
+
     warnings.warn("MISSING/UNUSED STRINGS DETECTED:\n{}".format(missingStrings))
+
 
 def get_nsis_path():
     bin_name = "makensis.exe"
@@ -48,6 +52,7 @@ def get_nsis_path():
     except WindowsError:
         return bin_name
 
+
 NSIS_COMPILE = get_nsis_path()
 
 OUT_DIR = "syncplay_v{}".format(syncplay.version)
@@ -55,14 +60,19 @@ SETUP_SCRIPT_PATH = "syncplay_setup.nsi"
 
 languages = getLanguages()
 
+
 def getLangTagFromNLF(lang):
-    return "LANG_" + getMessage("installer-language-file", lang).upper().replace(".NLF","").replace("_","")
+    return "LANG_" + getMessage("installer-language-file", lang).upper().replace(
+        ".NLF", ""
+    ).replace("_", "")
 
 
 # Load languages
 loadLanguageFileString = ""
 for lang in languages:
-    lineToAdd = "LoadLanguageFile \"$${{NSISDIR}}\\Contrib\\Language files\\{}\"".format(getMessage("installer-language-file", lang))
+    lineToAdd = 'LoadLanguageFile "$${{NSISDIR}}\\Contrib\\Language files\\{}"'.format(
+        getMessage("installer-language-file", lang)
+    )
     loadLanguageFileString = loadLanguageFileString + "\r\n" + lineToAdd
 
 # Add Version Keys
@@ -73,7 +83,9 @@ for lang in languages:
   VIAddVersionKey /LANG=$${LANG_IDENT} "FileVersion" "$version.0"
   VIAddVersionKey /LANG=$${LANG_IDENT} "LegalCopyright" "Syncplay"
   VIAddVersionKey /LANG=$${LANG_IDENT} "FileDescription" "Syncplay"
-  """.replace("LANG_IDENT", languageIdent)
+  """.replace(
+        "LANG_IDENT", languageIdent
+    )
     versionKeysString = versionKeysString + "\r\n" + lineToAdd
 
 # Add Language Strings
@@ -96,11 +108,19 @@ for lang in languages:
         "Desktop": "installer-desktop",
         "QuickLaunchBar": "installer-quick-launch-bar",
         "AutomaticUpdates": "installer-automatic-updates",
-        "UninstConfig": "installer-uninstall-configuration"
+        "UninstConfig": "installer-uninstall-configuration",
     }
     for nsisKey, messageKey in langStringDict.items():
         nsisValue = getMessage(messageKey, lang)
-        lineToAdd = "  LangString ^" + nsisKey + " $${" + languageIdent + "} \"" + nsisValue + "\""
+        lineToAdd = (
+            "  LangString ^"
+            + nsisKey
+            + " $${"
+            + languageIdent
+            + '} "'
+            + nsisValue
+            + '"'
+        )
         languageString = languageString + "\r\n" + lineToAdd
     languageString = languageString + "\r\n"
 
@@ -109,14 +129,19 @@ languagePushString = ""
 for lang in languages:
     languageIdent = getLangTagFromNLF(lang)
     languagePushString = languagePushString + "Push $${" + languageIdent + "}\r\n"
-    languagePushString = languagePushString + "Push '" + getMessage("LANGUAGE", lang) + "'\r\n"
+    languagePushString = (
+        languagePushString + "Push '" + getMessage("LANGUAGE", lang) + "'\r\n"
+    )
 
-NSIS_SCRIPT_TEMPLATE = r"""
+NSIS_SCRIPT_TEMPLATE = (
+    r"""
   !include LogicLib.nsh
   !include nsDialogs.nsh
   !include FileFunc.nsh
 
-""" + loadLanguageFileString + r"""
+"""
+    + loadLanguageFileString
+    + r"""
  
   Unicode true
 
@@ -131,7 +156,10 @@ NSIS_SCRIPT_TEMPLATE = r"""
 
   VIProductVersion "$version.0"
   
-  """ + versionKeysString + languageString + r"""
+  """
+    + versionKeysString
+    + languageString
+    + r"""
   ; Remove text to save space
   LangString ^ClickInstall $${LANG_GERMAN} " "
 
@@ -234,7 +262,9 @@ NSIS_SCRIPT_TEMPLATE = r"""
   ;Language selection dialog
   Function Language
     Push ""
-    """ + languagePushString + r"""
+    """
+    + languagePushString
+    + r"""
     Push A ; A means auto count languages
     LangDLL::LangDialog "Language Selection" "Please select the language of Syncplay and the installer"
     Pop $$LANGUAGE
@@ -536,6 +566,8 @@ NSIS_SCRIPT_TEMPLATE = r"""
     $${EndIf}
   SectionEnd
 """
+)
+
 
 class NSISScript(object):
     def create(self):
@@ -545,7 +577,11 @@ class NSISScript(object):
         uninstallFiles = self.prepareDeleteListTemplate(fileList)
 
         if os.path.isfile(SETUP_SCRIPT_PATH):
-            raise RuntimeError("Cannot create setup script, file exists at {}".format(SETUP_SCRIPT_PATH))
+            raise RuntimeError(
+                "Cannot create setup script, file exists at {}".format(
+                    SETUP_SCRIPT_PATH
+                )
+            )
         contents = Template(NSIS_SCRIPT_TEMPLATE).substitute(
             version=syncplay.version,
             uninstallFiles=uninstallFiles,
@@ -569,7 +605,9 @@ class NSISScript(object):
         fileList = {}
         totalSize = 0
         for root, _, files in os.walk(path):
-            totalSize += sum(os.path.getsize(os.path.join(root, file_)) for file_ in files)
+            totalSize += sum(
+                os.path.getsize(os.path.join(root, file_)) for file_ in files
+            )
             for file_ in files:
                 new_root = root.replace(OUT_DIR, "").strip("\\")
                 if new_root not in fileList:
@@ -593,52 +631,104 @@ class NSISScript(object):
             delete.append('RMdir "$INSTDIR\\{}"'.format(file_))
         return "\n".join(delete)
 
+
 def pruneUnneededLibraries():
     from pathlib import Path
+
     cwd = os.getcwd()
-    libDir = cwd + '\\' + OUT_DIR + '\\lib\\'
-    unneededModules = ['PySide2.Qt3D*', 'PySide2.QtAxContainer.pyd', 'PySide2.QtCharts.pyd', 'PySide2.QtConcurrent.pyd',
-                       'PySide2.QtDataVisualization.pyd', 'PySide2.QtHelp.pyd', 'PySide2.QtLocation.pyd',
-                       'PySide2.QtMultimedia.pyd', 'PySide2.QtMultimediaWidgets.pyd', 'PySide2.QtOpenGL.pyd',
-                       'PySide2.QtPositioning.pyd', 'PySide2.QtPrintSupport.pyd', 'PySide2.QtQml.pyd',
-                       'PySide2.QtQuick.pyd', 'PySide2.QtQuickWidgets.pyd', 'PySide2.QtScxml.pyd', 'PySide2.QtSensors.pyd',
-                       'PySide2.QtSql.pyd', 'PySide2.QtSvg.pyd', 'PySide2.QtTest.pyd', 'PySide2.QtTextToSpeech.pyd',
-                       'PySide2.QtUiTools.pyd', 'PySide2.QtWebChannel.pyd', 'PySide2.QtWebEngine.pyd',
-                       'PySide2.QtWebEngineCore.pyd', 'PySide2.QtWebEngineWidgets.pyd', 'PySide2.QtWebSockets.pyd',
-                       'PySide2.QtWinExtras.pyd', 'PySide2.QtXml.pyd', 'PySide2.QtXmlPatterns.pyd']
-    unneededLibs = ['Qt53D*', 'Qt5Charts.dll', 'Qt5Concurrent.dll', 'Qt5DataVisualization.dll', 'Qt5Gamepad.dll', 'Qt5Help.dll',
-                    'Qt5Location.dll', 'Qt5Multimedia.dll', 'Qt5MultimediaWidgets.dll', 'Qt5OpenGL.dll', 'Qt5Positioning.dll',
-                    'Qt5PrintSupport.dll', 'Qt5Quick.dll', 'Qt5QuickWidgets.dll', 'Qt5Scxml.dll', 'Qt5Sensors.dll', 'Qt5Sql.dll',
-                    'Qt5Svg.dll', 'Qt5Test.dll', 'Qt5TextToSpeech.dll', 'Qt5WebChannel.dll', 'Qt5WebEngine.dll',
-                    'Qt5WebEngineCore.dll', 'Qt5WebEngineWidgets.dll', 'Qt5WebSockets.dll', 'Qt5WinExtras.dll', 'Qt5Xml.dll',
-                    'Qt5XmlPatterns.dll']
-    windowsDLL = ['MSVCP140.dll', 'VCRUNTIME140.dll']
+    libDir = cwd + "\\" + OUT_DIR + "\\lib\\"
+    unneededModules = [
+        "PySide2.Qt3D*",
+        "PySide2.QtAxContainer.pyd",
+        "PySide2.QtCharts.pyd",
+        "PySide2.QtConcurrent.pyd",
+        "PySide2.QtDataVisualization.pyd",
+        "PySide2.QtHelp.pyd",
+        "PySide2.QtLocation.pyd",
+        "PySide2.QtMultimedia.pyd",
+        "PySide2.QtMultimediaWidgets.pyd",
+        "PySide2.QtOpenGL.pyd",
+        "PySide2.QtPositioning.pyd",
+        "PySide2.QtPrintSupport.pyd",
+        "PySide2.QtQml.pyd",
+        "PySide2.QtQuick.pyd",
+        "PySide2.QtQuickWidgets.pyd",
+        "PySide2.QtScxml.pyd",
+        "PySide2.QtSensors.pyd",
+        "PySide2.QtSql.pyd",
+        "PySide2.QtSvg.pyd",
+        "PySide2.QtTest.pyd",
+        "PySide2.QtTextToSpeech.pyd",
+        "PySide2.QtUiTools.pyd",
+        "PySide2.QtWebChannel.pyd",
+        "PySide2.QtWebEngine.pyd",
+        "PySide2.QtWebEngineCore.pyd",
+        "PySide2.QtWebEngineWidgets.pyd",
+        "PySide2.QtWebSockets.pyd",
+        "PySide2.QtWinExtras.pyd",
+        "PySide2.QtXml.pyd",
+        "PySide2.QtXmlPatterns.pyd",
+    ]
+    unneededLibs = [
+        "Qt53D*",
+        "Qt5Charts.dll",
+        "Qt5Concurrent.dll",
+        "Qt5DataVisualization.dll",
+        "Qt5Gamepad.dll",
+        "Qt5Help.dll",
+        "Qt5Location.dll",
+        "Qt5Multimedia.dll",
+        "Qt5MultimediaWidgets.dll",
+        "Qt5OpenGL.dll",
+        "Qt5Positioning.dll",
+        "Qt5PrintSupport.dll",
+        "Qt5Quick.dll",
+        "Qt5QuickWidgets.dll",
+        "Qt5Scxml.dll",
+        "Qt5Sensors.dll",
+        "Qt5Sql.dll",
+        "Qt5Svg.dll",
+        "Qt5Test.dll",
+        "Qt5TextToSpeech.dll",
+        "Qt5WebChannel.dll",
+        "Qt5WebEngine.dll",
+        "Qt5WebEngineCore.dll",
+        "Qt5WebEngineWidgets.dll",
+        "Qt5WebSockets.dll",
+        "Qt5WinExtras.dll",
+        "Qt5Xml.dll",
+        "Qt5XmlPatterns.dll",
+    ]
+    windowsDLL = ["MSVCP140.dll", "VCRUNTIME140.dll"]
     deleteList = unneededModules + unneededLibs + windowsDLL
-    deleteList.append('api-*')
+    deleteList.append("api-*")
     for filename in deleteList:
         for p in Path(libDir).glob(filename):
             p.unlink()
 
+
 def copyQtPlugins(paths):
     import shutil
     from PySide2 import QtCore
+
     basePath = QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.PluginsPath)
-    basePath = basePath.replace('/', '\\')
-    destBase = os.getcwd() + '\\' + OUT_DIR
+    basePath = basePath.replace("/", "\\")
+    destBase = os.getcwd() + "\\" + OUT_DIR
     for elem in paths:
         elemDir, elemName = os.path.split(elem)
-        source = basePath + '\\' + elem
-        dest = destBase + '\\' + elem
-        destDir = destBase + '\\' + elemDir
+        source = basePath + "\\" + elem
+        dest = destBase + "\\" + elem
+        destDir = destBase + "\\" + elemDir
         os.makedirs(destDir, exist_ok=True)
         shutil.copy(source, dest)
+
 
 class build_installer(py2exe):
     def run(self):
         py2exe.run(self)
-        print('*** deleting unnecessary libraries and modules ***')
+        print("*** deleting unnecessary libraries and modules ***")
         pruneUnneededLibraries()
-        print('*** copying qt plugins ***')
+        print("*** copying qt plugins ***")
         copyQtPlugins(qt_plugins)
         script = NSISScript()
         script.create()
@@ -646,44 +736,57 @@ class build_installer(py2exe):
         script.compile()
         print("*** DONE ***")
 
-guiIcons = glob('syncplay/resources/*.ico') + glob('syncplay/resources/*.png') +  ['syncplay/resources/spinner.mng']
+
+guiIcons = (
+    glob("syncplay/resources/*.ico")
+    + glob("syncplay/resources/*.png")
+    + ["syncplay/resources/spinner.mng"]
+)
 
 resources = [
     "syncplay/resources/syncplayintf.lua",
     "syncplay/resources/license.rtf",
-    "syncplay/resources/third-party-notices.txt"
+    "syncplay/resources/third-party-notices.txt",
 ]
 resources.extend(guiIcons)
 intf_resources = ["syncplay/resources/lua/intf/syncplay.lua"]
 
-qt_plugins = ['platforms\\qwindows.dll', 'styles\\qwindowsvistastyle.dll']
+qt_plugins = ["platforms\\qwindows.dll", "styles\\qwindowsvistastyle.dll"]
 
 common_info = dict(
-    name='Syncplay',
+    name="Syncplay",
     version=syncplay.version,
-    author='Uriziel',
-    author_email='dev@syncplay.pl',
-    description='Syncplay',
+    author="Uriziel",
+    author_email="dev@syncplay.pl",
+    description="Syncplay",
 )
 
 info = dict(
     common_info,
-    windows=[{
-        "script": "syncplayClient.py",
-        "icon_resources": [(1, "syncplay\\resources\\icon.ico")],
-        'dest_base': "Syncplay"},
+    windows=[
+        {
+            "script": "syncplayClient.py",
+            "icon_resources": [(1, "syncplay\\resources\\icon.ico")],
+            "dest_base": "Syncplay",
+        },
     ],
-    console=['syncplayServer.py', {"script":"syncplayClient.py", "icon_resources":[(1, "syncplay\\resources\\icon.ico")], 'dest_base': "SyncplayConsole"}],
-
+    console=[
+        "syncplayServer.py",
+        {
+            "script": "syncplayClient.py",
+            "icon_resources": [(1, "syncplay\\resources\\icon.ico")],
+            "dest_base": "SyncplayConsole",
+        },
+    ],
     options={
-        'py2exe': {
-            'dist_dir': OUT_DIR,
-            'packages': 'PySide2, cffi, OpenSSL, certifi',
-            'includes': 'twisted, sys, encodings, datetime, os, time, math, urllib, ast, unicodedata, _ssl, win32pipe, win32file, sqlite3',
-            'excludes': 'venv, doctest, pdb, unittest, win32clipboard, win32pdh, win32security, win32trace, win32ui, winxpgui, win32process, tcl, tkinter',
-            'dll_excludes': 'msvcr71.dll, MSVCP90.dll, POWRPROF.dll',
-            'optimize': 2,
-            'compressed': 1
+        "py2exe": {
+            "dist_dir": OUT_DIR,
+            "packages": "PySide2, cffi, OpenSSL, certifi",
+            "includes": "twisted, sys, encodings, datetime, os, time, math, urllib, ast, unicodedata, _ssl, win32pipe, win32file, sqlite3",
+            "excludes": "venv, doctest, pdb, unittest, win32clipboard, win32pdh, win32security, win32trace, win32ui, winxpgui, win32process, tcl, tkinter",
+            "dll_excludes": "msvcr71.dll, MSVCP90.dll, POWRPROF.dll",
+            "optimize": 2,
+            "compressed": 1,
         }
     },
     data_files=[("resources", resources), ("resources/lua/intf", intf_resources)],
@@ -691,5 +794,5 @@ info = dict(
     cmdclass={"py2exe": build_installer},
 )
 
-sys.argv.extend(['py2exe'])
+sys.argv.extend(["py2exe"])
 setup(**info)

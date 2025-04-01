@@ -3,43 +3,40 @@ import os.path
 
 import plistlib
 
-application = defines.get('app', 'dist/Syncplay.app')
+application = defines.get("app", "dist/Syncplay.app")
 appname = os.path.basename(application)
 
+
 def read_plist(path):
-    with open(path, 'rb') as f:
+    with open(path, "rb") as f:
         return plistlib.load(f)
 
+
 def icon_from_app(app_path):
-    plist_path = os.path.join(app_path, 'Contents', 'Info.plist')
+    plist_path = os.path.join(app_path, "Contents", "Info.plist")
     plist = read_plist(plist_path)
-    icon_name = plist['CFBundleIconFile']
+    icon_name = plist["CFBundleIconFile"]
     icon_root, icon_ext = os.path.splitext(icon_name)
     if not icon_ext:
-        icon_ext = '.icns'
+        icon_ext = ".icns"
     icon_name = icon_root + icon_ext
-    return os.path.join(app_path, 'Contents', 'Resources', icon_name)
+    return os.path.join(app_path, "Contents", "Resources", icon_name)
+
 
 # Volume format (see hdiutil create -help)
-format = defines.get('format', 'UDZO')
+format = defines.get("format", "UDZO")
 
 # Compression level (if relevant)
 compression_level = 9
 
 # Volume size
-size = defines.get('size', None)
+size = defines.get("size", None)
 
 # Files to include
-files = [
-    application,
-    'syncplay/resources/.macOS_readme.pdf'
-]
+files = [application, "syncplay/resources/.macOS_readme.pdf"]
 
 # Symlinks to create
-symlinks = {
-    'Applications': '/Applications',
-    'Read Me': '.macOS_readme.pdf'
-}
+symlinks = {"Applications": "/Applications", "Read Me": ".macOS_readme.pdf"}
 
 # Volume icon
 #
@@ -53,8 +50,8 @@ badge_icon = icon_from_app(application)
 # Where to put the icons
 icon_locations = {
     appname: (90, 110),
-    'Applications': (410, 110),
-    'Read Me': (250, 240),
+    "Applications": (410, 110),
+    "Read Me": (250, 240),
 }
 
 # .. Window configuration ......................................................
@@ -79,7 +76,7 @@ icon_locations = {
 #
 # Other color components may be expressed either in the range 0 to 1, or
 # as percentages (e.g. 60% is equivalent to 0.6).
-background = 'syncplay/resources/macOS_dmg_bkg.tiff'
+background = "syncplay/resources/macOS_dmg_bkg.tiff"
 
 show_status_bar = False
 show_tab_view = False
@@ -98,15 +95,15 @@ window_rect = ((100, 100), (500, 400))
 #    'column-view'
 #    'coverflow'
 #
-default_view = 'icon-view'
+default_view = "icon-view"
 
 # General view configuration
 show_icon_preview = False
 
 # Set these to True to force inclusion of icon/list view settings (otherwise
 # we only include settings for the default view)
-include_icon_view_settings = 'auto'
-include_list_view_settings = 'auto'
+include_icon_view_settings = "auto"
+include_list_view_settings = "auto"
 
 # .. Icon view configuration ...................................................
 
@@ -114,7 +111,7 @@ arrange_by = None
 grid_offset = (0, 0)
 grid_spacing = 20
 scroll_position = (0, 0)
-label_pos = 'bottom'  # or 'right'
+label_pos = "bottom"  # or 'right'
 text_size = 12
 icon_size = 80
 
@@ -136,31 +133,31 @@ icon_size = 80
 list_icon_size = 16
 list_text_size = 12
 list_scroll_position = (0, 0)
-list_sort_by = 'name'
+list_sort_by = "name"
 list_use_relative_dates = True
-list_calculate_all_sizes = False,
-list_columns = ('name', 'date-modified', 'size', 'kind', 'date-added')
+list_calculate_all_sizes = (False,)
+list_columns = ("name", "date-modified", "size", "kind", "date-added")
 list_column_widths = {
-    'name': 300,
-    'date-modified': 181,
-    'date-created': 181,
-    'date-added': 181,
-    'date-last-opened': 181,
-    'size': 97,
-    'kind': 115,
-    'label': 100,
-    'version': 75,
-    'comments': 300,
-    }
+    "name": 300,
+    "date-modified": 181,
+    "date-created": 181,
+    "date-added": 181,
+    "date-last-opened": 181,
+    "size": 97,
+    "kind": 115,
+    "label": 100,
+    "version": 75,
+    "comments": 300,
+}
 list_column_sort_directions = {
-    'name': 'ascending',
-    'date-modified': 'descending',
-    'date-created': 'descending',
-    'date-added': 'descending',
-    'date-last-opened': 'descending',
-    'size': 'descending',
-    'kind': 'ascending',
-    'label': 'ascending',
-    'version': 'ascending',
-    'comments': 'ascending',
-    }
+    "name": "ascending",
+    "date-modified": "descending",
+    "date-created": "descending",
+    "date-added": "descending",
+    "date-last-opened": "descending",
+    "size": "descending",
+    "kind": "ascending",
+    "label": "ascending",
+    "version": "ascending",
+    "comments": "ascending",
+}

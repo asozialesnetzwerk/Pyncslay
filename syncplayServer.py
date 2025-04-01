@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#coding:utf8
+# coding:utf8
 
 import sys
 
@@ -10,9 +10,10 @@ try:
         raise Exception("You must run Syncplay with Python 3.4 or newer!")
 except AttributeError:
     import warnings
+
     warnings.warn("You must run Syncplay with Python 3.4 or newer!")
 
 from syncplay import ep_server
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ep_server.main()

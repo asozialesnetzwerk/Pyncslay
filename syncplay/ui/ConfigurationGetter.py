@@ -1,4 +1,3 @@
-
 import argparse
 import ast
 import codecs
@@ -76,7 +75,7 @@ class ConfigurationGetter(object):
             "showContactInfo": True,
             "showDurationNotification": True,
             "chatInputEnabled": True,
-            "chatInputFontFamily": 'sans-serif',
+            "chatInputFontFamily": "sans-serif",
             "chatInputRelativeFontSize": constants.DEFAULT_CHAT_FONT_SIZE,
             "chatInputFontWeight": constants.DEFAULT_CHAT_FONT_WEIGHT,
             "chatInputFontUnderline": False,
@@ -84,7 +83,7 @@ class ConfigurationGetter(object):
             "chatInputPosition": constants.INPUT_POSITION_TOP,
             "chatDirectInput": False,
             "chatOutputEnabled": True,
-            "chatOutputFontFamily": 'sans-serif',
+            "chatOutputFontFamily": "sans-serif",
             "chatOutputRelativeFontSize": constants.DEFAULT_CHAT_FONT_SIZE,
             "chatOutputFontWeight": constants.DEFAULT_CHAT_FONT_WEIGHT,
             "chatOutputFontUnderline": False,
@@ -99,7 +98,7 @@ class ConfigurationGetter(object):
             "alertTimeout": 5,
             "chatTimeout": 7,
             "publicServers": [],
-            "loadPlaylistFromFile": None
+            "loadPlaylistFromFile": None,
         }
 
         self._defaultConfig = self._config.copy()
@@ -148,7 +147,7 @@ class ConfigurationGetter(object):
             "chatDirectInput",
             "chatMoveOSD",
             "chatOutputEnabled",
-            "chatOutputFontUnderline"
+            "chatOutputFontUnderline",
         ]
         self._tristate = [
             "checkForUpdatesAutomatically",
@@ -183,65 +182,101 @@ class ConfigurationGetter(object):
             "chatOSDMargin",
             "notificationTimeout",
             "alertTimeout",
-            "chatTimeout"
+            "chatTimeout",
         ]
 
-        self._hexadecimal = [
-            "chatInputFontColor"
-        ]
+        self._hexadecimal = ["chatInputFontColor"]
 
         self._iniStructure = {
             "server_data": ["host", "port", "password"],
             "client_settings": [
-                "name", "room", "roomList", "playerPath",
-                "perPlayerArguments", "slowdownThreshold",
-                "rewindThreshold", "fastforwardThreshold",
-                "folderSearchFirstFileTimeout", "folderSearchTimeout", "folderSearchDoubleCheckInterval", "folderSearchWarningThreshold",
-                "slowOnDesync", "rewindOnDesync",
-                "fastforwardOnDesync", "dontSlowDownWithMe",
-                "forceGuiPrompt", "filenamePrivacyMode",
-                "filesizePrivacyMode", "unpauseAction",
-                "pauseOnLeave", "readyAtStart", "autoplayMinUsers",
-                "autoplayInitialState", "mediaSearchDirectories",
-                "sharedPlaylistEnabled", "loopAtEndOfPlaylist",
+                "name",
+                "room",
+                "roomList",
+                "playerPath",
+                "perPlayerArguments",
+                "slowdownThreshold",
+                "rewindThreshold",
+                "fastforwardThreshold",
+                "folderSearchFirstFileTimeout",
+                "folderSearchTimeout",
+                "folderSearchDoubleCheckInterval",
+                "folderSearchWarningThreshold",
+                "slowOnDesync",
+                "rewindOnDesync",
+                "fastforwardOnDesync",
+                "dontSlowDownWithMe",
+                "forceGuiPrompt",
+                "filenamePrivacyMode",
+                "filesizePrivacyMode",
+                "unpauseAction",
+                "pauseOnLeave",
+                "readyAtStart",
+                "autoplayMinUsers",
+                "autoplayInitialState",
+                "mediaSearchDirectories",
+                "sharedPlaylistEnabled",
+                "loopAtEndOfPlaylist",
                 "loopSingleFiles",
                 "autoplayRequireSameFilenames",
-                "onlySwitchToTrustedDomains", "trustedDomains", "publicServers"],
+                "onlySwitchToTrustedDomains",
+                "trustedDomains",
+                "publicServers",
+            ],
             "gui": [
                 "autosaveJoinsToList",
-                "showOSD", "showOSDWarnings", "showSlowdownOSD",
-                "showDifferentRoomOSD", "showSameRoomOSD",
-                "showNonControllerOSD", "showDurationNotification",
-                "chatInputEnabled", "chatInputFontUnderline",
-                "chatInputFontFamily", "chatInputRelativeFontSize",
-                "chatInputFontWeight", "chatInputFontColor",
-                "chatInputPosition", "chatDirectInput",
-                "chatOutputFontFamily", "chatOutputRelativeFontSize",
-                "chatOutputFontWeight", "chatOutputFontUnderline",
-                "chatOutputMode", "chatMaxLines",
-                "chatTopMargin", "chatLeftMargin",
-                "chatBottomMargin", "chatDirectInput",
-                "chatMoveOSD", "chatOSDMargin",
-                "notificationTimeout", "alertTimeout",
-                "chatTimeout", "chatOutputEnabled"],
+                "showOSD",
+                "showOSDWarnings",
+                "showSlowdownOSD",
+                "showDifferentRoomOSD",
+                "showSameRoomOSD",
+                "showNonControllerOSD",
+                "showDurationNotification",
+                "chatInputEnabled",
+                "chatInputFontUnderline",
+                "chatInputFontFamily",
+                "chatInputRelativeFontSize",
+                "chatInputFontWeight",
+                "chatInputFontColor",
+                "chatInputPosition",
+                "chatDirectInput",
+                "chatOutputFontFamily",
+                "chatOutputRelativeFontSize",
+                "chatOutputFontWeight",
+                "chatOutputFontUnderline",
+                "chatOutputMode",
+                "chatMaxLines",
+                "chatTopMargin",
+                "chatLeftMargin",
+                "chatBottomMargin",
+                "chatDirectInput",
+                "chatMoveOSD",
+                "chatOSDMargin",
+                "notificationTimeout",
+                "alertTimeout",
+                "chatTimeout",
+                "chatOutputEnabled",
+            ],
             "general": [
-                "language", "checkForUpdatesAutomatically",
-                "lastCheckedForUpdates"]
+                "language",
+                "checkForUpdatesAutomatically",
+                "lastCheckedForUpdates",
+            ],
         }
 
         self._playerFactory = PlayerFactory()
 
     def _validateArguments(self):
-        if self._config['resetConfig']:
-            language = self._config['language']
-            checkForUpdatesAutomatically = self._config['checkForUpdatesAutomatically']
+        if self._config["resetConfig"]:
+            language = self._config["language"]
+            checkForUpdatesAutomatically = self._config["checkForUpdatesAutomatically"]
             self._config = self._defaultConfig
-            self._config['language'] = language
-            self._config['checkForUpdatesAutomatically'] = checkForUpdatesAutomatically
+            self._config["language"] = language
+            self._config["checkForUpdatesAutomatically"] = checkForUpdatesAutomatically
             raise InvalidConfigValue("*" + getMessage("config-cleared-notification"))
 
-        if not isValidLanguage(self._config['language']):
-            self._config['language'] = ""
+        if not isValidLanguage(self._config["language"]):
+            self._config["language"] = ""
 
         def _isPortValid(varToTest):
             try:
@@ -280,7 +315,7 @@ class ConfigurationGetter(object):
             self._config[key] = float(self._config[key])
 
         for key in self._hexadecimal:
-            match = re.search(r'^#(?:[0-9a-fA-F]){6}$', self._config[key])
+            match = re.search(r"^#(?:[0-9a-fA-F]){6}$", self._config[key])
             if not match:
                 self._config[key] = "#FFFFFF"
 
@@ -288,25 +323,35 @@ class ConfigurationGetter(object):
             if key == "playerPath":
                 player = None
                 if self._config["playerPath"]:
-                    player = self._playerFactory.getPlayerByPath(self._config["playerPath"])
+                    player = self._playerFactory.getPlayerByPath(
+                        self._config["playerPath"]
+                    )
                 if player:
                     self._config["playerClass"] = player
                 else:
                     raise InvalidConfigValue(getMessage("player-path-config-error"))
                 playerPathErrors = player.getPlayerPathErrors(
-                    self._config["playerPath"], self._config['file'] if self._config['file'] else None)
+                    self._config["playerPath"],
+                    self._config["file"] if self._config["file"] else None,
+                )
                 if playerPathErrors:
                     raise InvalidConfigValue(playerPathErrors)
             elif key == "host":
-                self._config["host"], self._config["port"] = self._splitPortAndHost(self._config["host"])
-                hostNotValid = (self._config["host"] == "" or self._config["host"] is None)
-                portNotValid = (_isPortValid(self._config["port"]) == False)
+                self._config["host"], self._config["port"] = self._splitPortAndHost(
+                    self._config["host"]
+                )
+                hostNotValid = (
+                    self._config["host"] == "" or self._config["host"] is None
+                )
+                portNotValid = _isPortValid(self._config["port"]) == False
                 if hostNotValid:
                     raise InvalidConfigValue(getMessage("no-hostname-config-error"))
                 elif portNotValid:
                     raise InvalidConfigValue(getMessage("invalid-port-config-error"))
             elif self._config[key] == "" or self._config[key] is None:
-                raise InvalidConfigValue(getMessage("empty-value-config-error").format(key.capitalize()))
+                raise InvalidConfigValue(
+                    getMessage("empty-value-config-error").format(key.capitalize())
+                )
 
     def _overrideConfigWithArgs(self, args):
         for key, val in list(vars(args).items()):
@@ -328,35 +373,37 @@ class ConfigurationGetter(object):
                 self._config[key] = val
 
     def _splitPortAndHost(self, host):
-        port = constants.DEFAULT_PORT if not self._config["port"] else self._config["port"]
+        port = (
+            constants.DEFAULT_PORT if not self._config["port"] else self._config["port"]
+        )
         if host:
-            if ':' in host:
-                if host.count(':') == 1:
-                    #IPv4 address or hostname, with port
-                    host, port = host.rsplit(':', 1)
+            if ":" in host:
+                if host.count(":") == 1:
+                    # IPv4 address or hostname, with port
+                    host, port = host.rsplit(":", 1)
                     try:
                         port = int(port)
                     except ValueError:
                         try:
-                            port = port.encode('ascii', 'ignore')
+                            port = port.encode("ascii", "ignore")
                         except:
                             port = ""
                 else:
-                    #IPv6 address
-                    if ']' in host:
-                        #IPv6 address in brackets
-                        endBracket = host.index(']')
+                    # IPv6 address
+                    if "]" in host:
+                        # IPv6 address in brackets
+                        endBracket = host.index("]")
                         try:
-                            #port explicitely indicated
-                            port = int(host[endBracket+2:])
+                            # port explicitely indicated
+                            port = int(host[endBracket + 2 :])
                         except ValueError:
-                            #no port after the bracket
+                            # no port after the bracket
                             pass
-                        host = host[:endBracket+1]
+                        host = host[: endBracket + 1]
                     else:
-                        #IPv6 address with no port and no brackets
-                        #add brackets to correctly store IPv6 addresses in configs
-                        host = '[' + host + ']'
+                        # IPv6 address with no port and no brackets
+                        # add brackets to correctly store IPv6 addresses in configs
+                        host = "[" + host + "]"
         return host, port
 
     def _checkForPortableFile(self):
@@ -376,17 +423,17 @@ class ConfigurationGetter(object):
         return self._expandConfigPath()
 
     def _expandConfigPath(self, name=None, xdg=True):
-        if os.name != 'nt':
+        if os.name != "nt":
             if xdg:
                 prefix = self._getXdgConfigHome()
             else:
-                prefix = os.getenv('HOME', '.')
+                prefix = os.getenv("HOME", ".")
         else:
-            prefix = os.getenv('APPDATA', '.')
+            prefix = os.getenv("APPDATA", ".")
         return os.path.join(prefix, name or constants.DEFAULT_CONFIG_NAME)
 
     def _getXdgConfigHome(self):
-        path = os.getenv('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
+        path = os.getenv("XDG_CONFIG_HOME", os.path.expanduser("~/.config"))
         if not os.path.isdir(path):
             os.mkdir(path, 0o700)
         return path
@@ -395,7 +442,7 @@ class ConfigurationGetter(object):
         parser = SafeConfigParserUnicode(strict=False)
         if not os.path.isfile(iniPath):
             if createConfig:
-                open(iniPath, 'w').close()
+                open(iniPath, "w").close()
             else:
                 return
         parser.read_file(codecs.open(iniPath, "r", "utf_8_sig"))
@@ -417,7 +464,7 @@ class ConfigurationGetter(object):
                 sys.exit()
 
     def _promptForMissingArguments(self, error=None):
-        if self._config['noGui'] or utils.isWindowsConsole():
+        if self._config["noGui"] or utils.isWindowsConsole():
             if error:
                 print("{}!".format(error))
             print(getMessage("missing-arguments-error"))
@@ -426,6 +473,7 @@ class ConfigurationGetter(object):
             sys.exit()
         else:
             from syncplay.ui.GuiConfiguration import GuiConfiguration
+
             gc = GuiConfiguration(self._config, error=error)
             gc.setAvailablePaths(self._playerFactory.getAvailablePlayerPaths())
             gc.run()
@@ -440,7 +488,7 @@ class ConfigurationGetter(object):
 
     def _saveConfig(self, iniPath):
         changed = False
-        if self._config['noStore']:
+        if self._config["noStore"]:
             return
         parser = SafeConfigParserUnicode(strict=False)
         parser.read_file(codecs.open(iniPath, "r", "utf_8_sig"))
@@ -451,12 +499,15 @@ class ConfigurationGetter(object):
             for option in options:
                 if self.__wasOptionChanged(parser, section, option):
                     changed = True
-                parser.set(section, option, str(self._config[option]).replace('%', '%%'))
+                parser.set(
+                    section, option, str(self._config[option]).replace("%", "%%")
+                )
         if changed:
             parser.write(codecs.open(iniPath, "wb", "utf_8_sig"))
 
     def _forceGuiPrompt(self):
         from syncplay.ui.GuiConfiguration import GuiConfiguration
+
         try:
             self._validateArguments()
         except InvalidConfigValue:
@@ -470,7 +521,7 @@ class ConfigurationGetter(object):
 
     def __getRelativeConfigLocations(self):
         locations = []
-        path = os.path.dirname(os.path.realpath(self._config['file']))
+        path = os.path.dirname(os.path.realpath(self._config["file"]))
         locations.append(path)
         while path != os.path.dirname(path):
             path = os.path.dirname(path)
@@ -484,7 +535,10 @@ class ConfigurationGetter(object):
         for location in locations:
             for name in constants.CONFIG_NAMES:
                 path = location + os.path.sep + name
-                if os.path.isfile(path) and (os.name == 'nt' or path != os.path.join(os.getenv('HOME', '.'), name)):
+                if os.path.isfile(path) and (
+                    os.name == "nt"
+                    or path != os.path.join(os.getenv("HOME", "."), name)
+                ):
                     loadedPaths.append("'{}'".format(os.path.normpath(path)))
                     self._parseConfigFile(path, createConfig=False)
                     self._checkConfig()
@@ -496,46 +550,129 @@ class ConfigurationGetter(object):
         #
         # Watch out for the method self._overrideConfigWithArgs when you're adding custom multi-word command line arguments
         #
-        if self._config['language']:
-            setLanguage(self._config['language'])
+        if self._config["language"]:
+            setLanguage(self._config["language"])
         self._argparser = argparse.ArgumentParser(
             description=getMessage("argument-description"),
-            epilog=getMessage("argument-epilog"))
-        self._argparser.add_argument('--no-gui', action='store_true', help=getMessage("nogui-argument"))
-        self._argparser.add_argument('-a', '--host', metavar='hostname', type=str, help=getMessage("host-argument"))
-        self._argparser.add_argument('-n', '--name', metavar='username', type=str, help=getMessage("name-argument"))
-        self._argparser.add_argument('-d', '--debug', action='store_true', help=getMessage("debug-argument"))
-        self._argparser.add_argument('-g', '--force-gui-prompt', action='store_true', help=getMessage("force-gui-prompt-argument"))
-        self._argparser.add_argument('--no-store', action='store_true', help=getMessage("no-store-argument"))
-        self._argparser.add_argument('-r', '--room', metavar='room', type=str, nargs='?', help=getMessage("room-argument"))
-        self._argparser.add_argument('-p', '--password', metavar='password', type=str, nargs='?', help=getMessage("password-argument"))
-        self._argparser.add_argument('--player-path', metavar='path', type=str, help=getMessage("player-path-argument"))
-        self._argparser.add_argument('-psn', metavar='blackhole', type=str, help=argparse.SUPPRESS)
-        self._argparser.add_argument('--language', metavar='language', type=str, help=getMessage("language-argument"))
-        self._argparser.add_argument('file', metavar='file', type=str, nargs='?', help=getMessage("file-argument"))
-        self._argparser.add_argument('--clear-gui-data', action='store_true', help=getMessage("clear-gui-data-argument"))
-        self._argparser.add_argument('-v', '--version', action='store_true', help=getMessage("version-argument"))
-        self._argparser.add_argument('--load-playlist-from-file', metavar="loadPlaylistFromFile", type=str, help=getMessage("load-playlist-from-file-argument"))
+            epilog=getMessage("argument-epilog"),
+        )
+        self._argparser.add_argument(
+            "--no-gui", action="store_true", help=getMessage("nogui-argument")
+        )
+        self._argparser.add_argument(
+            "-a",
+            "--host",
+            metavar="hostname",
+            type=str,
+            help=getMessage("host-argument"),
+        )
+        self._argparser.add_argument(
+            "-n",
+            "--name",
+            metavar="username",
+            type=str,
+            help=getMessage("name-argument"),
+        )
+        self._argparser.add_argument(
+            "-d", "--debug", action="store_true", help=getMessage("debug-argument")
+        )
+        self._argparser.add_argument(
+            "-g",
+            "--force-gui-prompt",
+            action="store_true",
+            help=getMessage("force-gui-prompt-argument"),
+        )
+        self._argparser.add_argument(
+            "--no-store", action="store_true", help=getMessage("no-store-argument")
+        )
+        self._argparser.add_argument(
+            "-r",
+            "--room",
+            metavar="room",
+            type=str,
+            nargs="?",
+            help=getMessage("room-argument"),
+        )
+        self._argparser.add_argument(
+            "-p",
+            "--password",
+            metavar="password",
+            type=str,
+            nargs="?",
+            help=getMessage("password-argument"),
+        )
+        self._argparser.add_argument(
+            "--player-path",
+            metavar="path",
+            type=str,
+            help=getMessage("player-path-argument"),
+        )
+        self._argparser.add_argument(
+            "-psn", metavar="blackhole", type=str, help=argparse.SUPPRESS
+        )
+        self._argparser.add_argument(
+            "--language",
+            metavar="language",
+            type=str,
+            help=getMessage("language-argument"),
+        )
+        self._argparser.add_argument(
+            "file",
+            metavar="file",
+            type=str,
+            nargs="?",
+            help=getMessage("file-argument"),
+        )
+        self._argparser.add_argument(
+            "--clear-gui-data",
+            action="store_true",
+            help=getMessage("clear-gui-data-argument"),
+        )
+        self._argparser.add_argument(
+            "-v", "--version", action="store_true", help=getMessage("version-argument")
+        )
+        self._argparser.add_argument(
+            "--load-playlist-from-file",
+            metavar="loadPlaylistFromFile",
+            type=str,
+            help=getMessage("load-playlist-from-file-argument"),
+        )
 
-        self._argparser.add_argument('_args', metavar='options', type=str, nargs='*', help=getMessage("args-argument"))
+        self._argparser.add_argument(
+            "_args",
+            metavar="options",
+            type=str,
+            nargs="*",
+            help=getMessage("args-argument"),
+        )
         args = self._argparser.parse_args()
         if args.version:
             print(getMessage("version-message").format(version, milestone))
             sys.exit()
         self._overrideConfigWithArgs(args)
-        if not self._config['noGui']:
+        if not self._config["noGui"]:
             try:
-                from syncplay.vendor.Qt import QtWidgets, IsPySide, IsPySide2, IsPySide6, QtGui
+                from syncplay.vendor.Qt import (
+                    QtWidgets,
+                    IsPySide,
+                    IsPySide2,
+                    IsPySide6,
+                    QtGui,
+                )
                 from syncplay.vendor.Qt.QtCore import QCoreApplication
                 from syncplay.vendor import qt5reactor
+
                 if not (IsPySide6 or IsPySide2 or IsPySide):
-                    raise ImportError("Failed to identify compatible version of PySide.")
+                    raise ImportError(
+                        "Failed to identify compatible version of PySide."
+                    )
                 if QCoreApplication.instance() is None:
                     self.app = QtWidgets.QApplication(sys.argv)
                     self.app.setDesktopFileName("syncplay")
                     if isWindows():
                         try:
                             from syncplay.vendor import darkdetect
+
                             isDarkMode = darkdetect.isDark()
                         except:
                             isDarkMode = False
@@ -545,6 +682,7 @@ class ConfigurationGetter(object):
                 qt5reactor.install()
                 if isMacOS():
                     import appnope
+
                     appnope.nope()
             except ImportError as e:
                 try:
@@ -555,21 +693,25 @@ class ConfigurationGetter(object):
                     sys.exit()
                 print(e)
                 print(getMessage("unable-import-gui-error"))
-                self._config['noGui'] = True
-        if self._config['file'] and self._config['file'][:2] == "--":
-            self._config['playerArgs'].insert(0, self._config['file'])
-            self._config['file'] = None
+                self._config["noGui"] = True
+        if self._config["file"] and self._config["file"][:2] == "--":
+            self._config["playerArgs"].insert(0, self._config["file"])
+            self._config["file"] = None
         # Arguments not validated yet - booleans are still text values
-        if self._config['language']:
-            setLanguage(self._config['language'])
-        if (self._config['forceGuiPrompt'] == "True" or not self._config['file']) and not self._config['noGui'] and not utils.isWindowsConsole():
+        if self._config["language"]:
+            setLanguage(self._config["language"])
+        if (
+            (self._config["forceGuiPrompt"] == "True" or not self._config["file"])
+            and not self._config["noGui"]
+            and not utils.isWindowsConsole()
+        ):
             self._forceGuiPrompt()
         self._checkConfig()
         self._saveConfig(iniPath)
-        if self._config['file']:
-            self._config['loadedRelativePaths'] = self._loadRelativeConfiguration()
-        if self._config['language']:
-            setLanguage(self._config['language'])
+        if self._config["file"]:
+            self._config["loadedRelativePaths"] = self._loadRelativeConfiguration()
+        if self._config["language"]:
+            setLanguage(self._config["language"])
         return self._config
 
     def getDarkPalette(self, QtGui):
@@ -588,11 +730,25 @@ class ConfigurationGetter(object):
         darkPalette.setColor(QtGui.QPalette.Link, QtGui.QColor(42, 130, 218))
         darkPalette.setColor(QtGui.QPalette.Highlight, QtGui.QColor(42, 130, 218))
         darkPalette.setColor(QtGui.QPalette.HighlightedText, QtGui.QColor(35, 35, 35))
-        darkPalette.setColor(QtGui.QPalette.Active, QtGui.QPalette.Button, QtGui.QColor(53, 53, 53))
-        darkPalette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.ButtonText, QtGui.QColor(128, 128, 128))
-        darkPalette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, QtGui.QColor(128, 128, 128))
-        darkPalette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Text, QtGui.QColor(128, 128, 128))
-        darkPalette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Light, QtGui.QColor(53, 53, 53))
+        darkPalette.setColor(
+            QtGui.QPalette.Active, QtGui.QPalette.Button, QtGui.QColor(53, 53, 53)
+        )
+        darkPalette.setColor(
+            QtGui.QPalette.Disabled,
+            QtGui.QPalette.ButtonText,
+            QtGui.QColor(128, 128, 128),
+        )
+        darkPalette.setColor(
+            QtGui.QPalette.Disabled,
+            QtGui.QPalette.WindowText,
+            QtGui.QColor(128, 128, 128),
+        )
+        darkPalette.setColor(
+            QtGui.QPalette.Disabled, QtGui.QPalette.Text, QtGui.QColor(128, 128, 128)
+        )
+        darkPalette.setColor(
+            QtGui.QPalette.Disabled, QtGui.QPalette.Light, QtGui.QColor(53, 53, 53)
+        )
         return darkPalette
 
     def setConfigOption(self, option, value):
@@ -610,15 +766,15 @@ class SafeConfigParserUnicode(ConfigParser):
         """Write an .ini-format representation of the configuration state."""
         if self._defaults:
             fp.write("[%s]\n" % DEFAULTSECT)
-            for (key, value) in list(self._defaults.items()):
-                fp.write("%s = %s\n" % (key, str(value).replace('\n', '\n\t')))
+            for key, value in list(self._defaults.items()):
+                fp.write("%s = %s\n" % (key, str(value).replace("\n", "\n\t")))
             fp.write("\n")
         for section in self._sections:
             fp.write("[%s]\n" % section)
-            for (key, value) in list(self._sections[section].items()):
+            for key, value in list(self._sections[section].items()):
                 if key == "__name__":
                     continue
                 if (value is not None) or (self._optcre == self.OPTCRE):
-                    key = " = ".join((key, str(value).replace('\n', '\n\t')))
+                    key = " = ".join((key, str(value).replace("\n", "\n\t")))
                 fp.write("%s\n" % key)
             fp.write("\n")

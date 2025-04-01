@@ -1,4 +1,3 @@
-
 import os
 import random
 import re
@@ -19,9 +18,10 @@ from syncplay.messages import getMessage
 from syncplay.players.basePlayer import BasePlayer
 from syncplay.utils import isBSD, isLinux, isWindows, isMacOS
 
+
 class VLCProtocol(LineReceiver):
     def __init__(self):
-        self.delimiter = b'\n'
+        self.delimiter = b"\n"
 
     def lineReceived(self, data):
         self.factory.vlcHasResponded = True
@@ -33,10 +33,15 @@ class VLCProtocol(LineReceiver):
                 self.factory.requestedVLCVersion = True
                 self.sendLine("get-vlc-version")
             try:
-                lineToSend = line.encode('utf-8') + self.delimiter
+                lineToSend = line.encode("utf-8") + self.delimiter
                 self.transport.write(lineToSend)
-                if self.factory._playerController._client and self.factory._playerController._client.ui:
-                    self.factory._playerController._client.ui.showDebugMessage("player >> {}".format(line))
+                if (
+                    self.factory._playerController._client
+                    and self.factory._playerController._client.ui
+                ):
+                    self.factory._playerController._client.ui.showDebugMessage(
+                        "player >> {}".format(line)
+                    )
             except:
                 pass
 
@@ -49,6 +54,7 @@ class VLCProtocol(LineReceiver):
     def connectionLost(self, reason):
         self.factory.connected = False
 
+
 class VLCClientFactory(ReconnectingClientFactory):
 
     # http://twistedmatrix.com/documents/current/api/twisted.internet.protocol.ReconnectingClientFactory.html
@@ -58,14 +64,20 @@ class VLCClientFactory(ReconnectingClientFactory):
     maxRetries = 50
 
     def startedConnecting(self, connector):
-        self._playerController._client.ui.showDebugMessage("Starting to connect to VLC...")
+        self._playerController._client.ui.showDebugMessage(
+            "Starting to connect to VLC..."
+        )
 
     def clientConnectionLost(self, connector, reason):
-        self._playerController._client.ui.showDebugMessage("Connection to VLC lost: {}".format(reason))
+        self._playerController._client.ui.showDebugMessage(
+            "Connection to VLC lost: {}".format(reason)
+        )
         ReconnectingClientFactory.clientConnectionLost(self, connector, reason)
 
     def clientConnectionFailed(self, connector, reason):
-        self._playerController._client.ui.showDebugMessage("Connection to VLC failed: {}".format(reason))
+        self._playerController._client.ui.showDebugMessage(
+            "Connection to VLC failed: {}".format(reason)
+        )
         ReconnectingClientFactory.clientConnectionFailed(self, connector, reason)
 
     def __init__(self, playerController, vlcHasResponded, vlcLaunchedTime, vlcProcess):
@@ -82,9 +94,14 @@ class VLCClientFactory(ReconnectingClientFactory):
         return self.protocol
 
     def clientConnectionLost(self, connector, reason):
-        if self.timeVLCLaunched and time.time() - self.timeVLCLaunched < constants.VLC_OPEN_MAX_WAIT_TIME:
+        if (
+            self.timeVLCLaunched
+            and time.time() - self.timeVLCLaunched < constants.VLC_OPEN_MAX_WAIT_TIME
+        ):
             try:
-                self._playerController._client.ui.showDebugMessage("Failed to connect to VLC, but reconnecting as within max wait time")
+                self._playerController._client.ui.showDebugMessage(
+                    "Failed to connect to VLC, but reconnecting as within max wait time"
+                )
             except:
                 pass
             self._playerController._vlcready.clear()
@@ -93,7 +110,9 @@ class VLCClientFactory(ReconnectingClientFactory):
             self._playerController.drop()
         else:
             self.vlcHasResponded = True
-            self._playerController.drop(getMessage("vlc-failed-connection").format(constants.VLC_MIN_VERSION))
+            self._playerController.drop(
+                getMessage("vlc-failed-connection").format(constants.VLC_MIN_VERSION)
+            )
 
     def closeVLC(self):
         self._playerController._vlcclosed.set()
@@ -115,10 +134,15 @@ class VlcPlayer(BasePlayer):
     RE_ANSWER = re.compile(constants.VLC_ANSWER_REGEX)
     SLAVE_ARGS = constants.VLC_SLAVE_ARGS
     SLAVE_ARGS.extend(constants.VLC_SLAVE_EXTRA_ARGS)
-    vlcport = random.randrange(constants.VLC_MIN_PORT, constants.VLC_MAX_PORT) if (constants.VLC_MIN_PORT < constants.VLC_MAX_PORT) else constants.VLC_MIN_PORT
+    vlcport = (
+        random.randrange(constants.VLC_MIN_PORT, constants.VLC_MAX_PORT)
+        if (constants.VLC_MIN_PORT < constants.VLC_MAX_PORT)
+        else constants.VLC_MIN_PORT
+    )
 
     def __init__(self, client, playerPath, filePath, args):
         from twisted.internet import reactor
+
         self.reactor = reactor
         self._client = client
         self._paused = None
@@ -137,7 +161,8 @@ class VlcPlayer(BasePlayer):
                 raise ValueError
         except:
             self._client.ui.showErrorMessage(
-                "Failed to determine locale. As a fallback Syncplay is using the following radix character: \".\".")
+                'Failed to determine locale. As a fallback Syncplay is using the following radix character: ".".'
+            )
             self.radixChar = "."
 
         self._durationAsk = threading.Event()
@@ -149,10 +174,15 @@ class VlcPlayer(BasePlayer):
         self._vlcclosed = threading.Event()
         self._listener = None
         try:
-            self._listener = self.__Listener(self, playerPath, filePath, args, self.reactor)
+            self._listener = self.__Listener(
+                self, playerPath, filePath, args, self.reactor
+            )
         except ValueError:
             self._client.ui.showErrorMessage(getMessage("vlc-failed-connection"), True)
-            self.reactor.callFromThread(self._client.stop, True,)
+            self.reactor.callFromThread(
+                self._client.stop,
+                True,
+            )
             return
 
     def initWhenConnected(self):
@@ -160,9 +190,17 @@ class VlcPlayer(BasePlayer):
             self._client.ui.showErrorMessage(getMessage("vlc-initial-warning"))
             if not self._vlcready.wait(constants.VLC_OPEN_MAX_WAIT_TIME):
                 self._vlcready.set()
-                self._client.ui.showErrorMessage(getMessage("vlc-failed-connection"), True)
-                self.reactor.callFromThread(self._client.stop, True,)
-            self.reactor.callFromThread(self._client.initPlayer, self,)
+                self._client.ui.showErrorMessage(
+                    getMessage("vlc-failed-connection"), True
+                )
+                self.reactor.callFromThread(
+                    self._client.stop,
+                    True,
+                )
+            self.reactor.callFromThread(
+                self._client.initPlayer,
+                self,
+            )
         except:
             pass
 
@@ -194,32 +232,46 @@ class VlcPlayer(BasePlayer):
             self._positionAsk.wait(constants.PLAYER_ASK_DELAY)
             self._client.updatePlayerStatus(self._paused, self.getCalculatedPosition())
         else:
-            self._client.updatePlayerStatus(self._client.getGlobalPaused(), self._client.getGlobalPosition())
+            self._client.updatePlayerStatus(
+                self._client.getGlobalPaused(), self._client.getGlobalPosition()
+            )
 
     def getCalculatedPosition(self):
         if self._lastVLCPositionUpdate is None:
             return self._client.getGlobalPosition()
         diff = time.time() - self._lastVLCPositionUpdate
         if diff > constants.PLAYER_ASK_DELAY and not self._paused:
-            self._client.ui.showDebugMessage("VLC did not response in time, so assuming position is {} ({}+{})".format(
-                self._position + diff, self._position, diff))
+            self._client.ui.showDebugMessage(
+                "VLC did not response in time, so assuming position is {} ({}+{})".format(
+                    self._position + diff, self._position, diff
+                )
+            )
             if diff > constants.VLC_LATENCY_ERROR_THRESHOLD:
                 if not self.shownVLCLatencyError or constants.DEBUG_MODE:
-                    self._client.ui.showErrorMessage(getMessage("media-player-latency-warning").format(int(diff)))
+                    self._client.ui.showErrorMessage(
+                        getMessage("media-player-latency-warning").format(int(diff))
+                    )
                     self.shownVLCLatencyError = True
             return self._position + diff
         else:
             return self._position
 
     def displayMessage(
-        self, message,
-        duration=constants.OSD_DURATION * 1000, OSDType=constants.OSD_DURATION, mood=constants.MESSAGE_NEUTRAL
+        self,
+        message,
+        duration=constants.OSD_DURATION * 1000,
+        OSDType=constants.OSD_DURATION,
+        mood=constants.MESSAGE_NEUTRAL,
     ):
         duration /= 1000
         if OSDType != constants.OSD_ALERT:
-            self._listener.sendLine('display-osd: {}, {}, {}'.format('top-right', duration, message))
+            self._listener.sendLine(
+                "display-osd: {}, {}, {}".format("top-right", duration, message)
+            )
         else:
-            self._listener.sendLine('display-secondary-osd: {}, {}, {}'.format('center', duration, message))
+            self._listener.sendLine(
+                "display-secondary-osd: {}, {}, {}".format("center", duration, message)
+            )
 
     def setSpeed(self, value):
         self._listener.sendLine("set-rate: {:.2n}".format(value))
@@ -229,21 +281,25 @@ class VlcPlayer(BasePlayer):
 
     def setPosition(self, value):
         self._lastVLCPositionUpdate = time.time()
-        self._listener.sendLine("set-position: {}".format(value).replace(".", self.radixChar))
+        self._listener.sendLine(
+            "set-position: {}".format(value).replace(".", self.radixChar)
+        )
 
     def setPaused(self, value):
         self._paused = value
         if not value:
             self._lastVLCPositionUpdate = time.time()
-        self._listener.sendLine('set-playstate: {}'.format("paused" if value else "playing"))
+        self._listener.sendLine(
+            "set-playstate: {}".format("paused" if value else "playing")
+        )
 
     def getMRL(self, fileURL):
         if utils.isURL(fileURL):
             fileURL = urllib.parse.quote(fileURL, safe="%/:=&?~#+!$,;'@()*")
             return fileURL
 
-        fileURL = fileURL.replace('\\', '/')
-        fileURL = fileURL.encode('utf8')
+        fileURL = fileURL.replace("\\", "/")
+        fileURL = fileURL.encode("utf8")
         fileURL = urllib.parse.quote_plus(fileURL)
         if isWindows():
             fileURL = "file:///" + fileURL
@@ -258,10 +314,10 @@ class VlcPlayer(BasePlayer):
             if os.path.isfile(normedPath):
                 filePath = normedPath
         if utils.isASCII(filePath) and not utils.isURL(filePath):
-            self._listener.sendLine('load-file: {}'.format(filePath))
+            self._listener.sendLine("load-file: {}".format(filePath))
         else:
             fileURL = self.getMRL(filePath)
-            self._listener.sendLine('load-file: {}'.format(fileURL))
+            self._listener.sendLine("load-file: {}".format(fileURL))
 
     def _getFileInfo(self):
         self._listener.sendLine("get-duration")
@@ -270,13 +326,13 @@ class VlcPlayer(BasePlayer):
 
     def lineReceived(self, line):
         # try:
-        line = line.decode('utf-8')
+        line = line.decode("utf-8")
         self._client.ui.showDebugMessage("player << {}".format(line))
         # except:
-            # pass
+        # pass
         match, name, value = self.RE_ANSWER.match(line), "", ""
         if match:
-            name, value = match.group('command'), match.group('argument')
+            name, value = match.group("command"), match.group("argument")
 
         if line == "filepath-change-notification":
             self._filechanged = True
@@ -312,26 +368,47 @@ class VlcPlayer(BasePlayer):
                 t.setDaemon(True)
                 t.start()
         elif name == "playstate":
-            self._paused = bool(value != 'playing') if (value != "no-input" and self._filechanged == False) else self._client.getGlobalPaused()
-            diff = time.time() - self._lastVLCPositionUpdate if self._lastVLCPositionUpdate else 0
+            self._paused = (
+                bool(value != "playing")
+                if (value != "no-input" and self._filechanged == False)
+                else self._client.getGlobalPaused()
+            )
+            diff = (
+                time.time() - self._lastVLCPositionUpdate
+                if self._lastVLCPositionUpdate
+                else 0
+            )
             if (
-                self._paused == False and
-                self._position == self._previousPreviousPosition and
-                self._previousPosition == self._position and
-                self._duration and
-                self._duration > constants.PLAYLIST_LOAD_NEXT_FILE_MINIMUM_LENGTH and
-                (self._duration - self._position) < constants.VLC_EOF_DURATION_THRESHOLD and
-                diff > constants.VLC_LATENCY_ERROR_THRESHOLD
+                self._paused == False
+                and self._position == self._previousPreviousPosition
+                and self._previousPosition == self._position
+                and self._duration
+                and self._duration > constants.PLAYLIST_LOAD_NEXT_FILE_MINIMUM_LENGTH
+                and (self._duration - self._position)
+                < constants.VLC_EOF_DURATION_THRESHOLD
+                and diff > constants.VLC_LATENCY_ERROR_THRESHOLD
             ):
-                self._client.ui.showDebugMessage("Treating 'playing' response as 'paused' due to VLC EOF bug")
+                self._client.ui.showDebugMessage(
+                    "Treating 'playing' response as 'paused' due to VLC EOF bug"
+                )
                 self.setPaused(True)
             self._pausedAsk.set()
         elif name == "position":
-            newPosition = float(value.replace(",", ".")) if (value != "no-input" and not self._filechanged) else self._client.getGlobalPosition()
-            if newPosition == self._previousPosition and newPosition != self._duration and self._paused is False:
+            newPosition = (
+                float(value.replace(",", "."))
+                if (value != "no-input" and not self._filechanged)
+                else self._client.getGlobalPosition()
+            )
+            if (
+                newPosition == self._previousPosition
+                and newPosition != self._duration
+                and self._paused is False
+            ):
                 self._client.ui.showDebugMessage(
                     "Not considering position {} duplicate as new time because of VLC time precision bug".format(
-                        newPosition))
+                        newPosition
+                    )
+                )
                 self._previousPreviousPosition = self._previousPosition
                 self._previousPosition = self._position
                 self._positionAsk.set()
@@ -339,7 +416,11 @@ class VlcPlayer(BasePlayer):
             self._previousPreviousPosition = self._previousPosition
             self._previousPosition = self._position
             self._position = newPosition
-            if self._position < 0 and self._duration > 2147 and self._vlcVersion == "3.0.0":
+            if (
+                self._position < 0
+                and self._duration > 2147
+                and self._vlcVersion == "3.0.0"
+            ):
                 self.drop(getMessage("vlc-failed-versioncheck"))
             self._lastVLCPositionUpdate = time.time()
             self._positionAsk.set()
@@ -348,9 +429,11 @@ class VlcPlayer(BasePlayer):
             self._filename = value
             self._filenameAsk.set()
         elif line.startswith("vlc-version: "):
-            self._vlcVersion = line.split(': ')[1].replace(' ', '-').split('-')[0]
+            self._vlcVersion = line.split(": ")[1].replace(" ", "-").split("-")[0]
             if not utils.meetsMinVersion(self._vlcVersion, constants.VLC_MIN_VERSION):
-                self._client.ui.showErrorMessage(getMessage("vlc-version-mismatch").format(constants.VLC_MIN_VERSION))
+                self._client.ui.showErrorMessage(
+                    getMessage("vlc-version-mismatch").format(constants.VLC_MIN_VERSION)
+                )
             self._vlcready.set()
 
     @staticmethod
@@ -398,7 +481,7 @@ class VlcPlayer(BasePlayer):
                 return playerPath
         if os.access(playerPath, os.X_OK):
             return playerPath
-        for path in os.environ['PATH'].split(':'):
+        for path in os.environ["PATH"].split(":"):
             path = os.path.join(os.path.realpath(path), playerPath)
             if os.access(path, os.X_OK):
                 return path
@@ -415,11 +498,15 @@ class VlcPlayer(BasePlayer):
         self._vlcready.set()
         self._pausedAsk.set()
         if dropErrorMessage:
-            self.reactor.callFromThread(self._client.ui.showErrorMessage, dropErrorMessage, True)
-        self.reactor.callFromThread(self._client.stop, False,)
+            self.reactor.callFromThread(
+                self._client.ui.showErrorMessage, dropErrorMessage, True
+            )
+        self.reactor.callFromThread(
+            self._client.stop,
+            False,
+        )
 
-
-    class __Listener():
+    class __Listener:
         def __init__(self, playerController, playerPath, filePath, args, reactor):
             self.__playerController = playerController
             self.reactor = reactor
@@ -434,42 +521,86 @@ class VlcPlayer(BasePlayer):
                 else:
                     call.append(self.__playerController.getMRL(filePath))
             if isLinux():
-                if 'snap' in playerPath:
-                    self.__playerController.vlcIntfPath = '/snap/vlc/current/usr/lib/vlc/lua/intf/'
-                    self.__playerController.vlcIntfUserPath = os.path.join(os.getenv('HOME', '.'), "snap/vlc/current/.local/share/vlc/lua/intf/")
+                if "snap" in playerPath:
+                    self.__playerController.vlcIntfPath = (
+                        "/snap/vlc/current/usr/lib/vlc/lua/intf/"
+                    )
+                    self.__playerController.vlcIntfUserPath = os.path.join(
+                        os.getenv("HOME", "."),
+                        "snap/vlc/current/.local/share/vlc/lua/intf/",
+                    )
                 else:
                     self.__playerController.vlcIntfPath = "/usr/lib/vlc/lua/intf/"
-                    self.__playerController.vlcIntfUserPath = os.path.join(os.getenv('HOME', '.'), ".local/share/vlc/lua/intf/")
+                    self.__playerController.vlcIntfUserPath = os.path.join(
+                        os.getenv("HOME", "."), ".local/share/vlc/lua/intf/"
+                    )
             elif isMacOS():
-                self.__playerController.vlcIntfPath = "/Applications/VLC.app/Contents/MacOS/share/lua/intf/"
+                self.__playerController.vlcIntfPath = (
+                    "/Applications/VLC.app/Contents/MacOS/share/lua/intf/"
+                )
                 self.__playerController.vlcIntfUserPath = os.path.join(
-                    os.getenv('HOME', '.'), "Library/Application Support/org.videolan.vlc/lua/intf/")
+                    os.getenv("HOME", "."),
+                    "Library/Application Support/org.videolan.vlc/lua/intf/",
+                )
             elif isBSD():
                 # *BSD ports/pkgs install to /usr/local by default.
                 # This should also work for all the other BSDs, such as OpenBSD or DragonFly.
                 self.__playerController.vlcIntfPath = "/usr/local/lib/vlc/lua/intf/"
-                self.__playerController.vlcIntfUserPath = os.path.join(os.getenv('HOME', '.'), ".local/share/vlc/lua/intf/")
+                self.__playerController.vlcIntfUserPath = os.path.join(
+                    os.getenv("HOME", "."), ".local/share/vlc/lua/intf/"
+                )
             elif "vlcportable.exe" in playerPath.lower():
-                self.__playerController.vlcIntfPath = os.path.dirname(playerPath).replace("\\", "/") + "/App/vlc/lua/intf/"
+                self.__playerController.vlcIntfPath = (
+                    os.path.dirname(playerPath).replace("\\", "/")
+                    + "/App/vlc/lua/intf/"
+                )
                 self.__playerController.vlcIntfUserPath = playerController.vlcIntfPath
             else:
-                self.__playerController.vlcIntfPath = os.path.dirname(playerPath).replace("\\", "/") + "/lua/intf/"
-                self.__playerController.vlcIntfUserPath = os.path.join(os.getenv('APPDATA', '.'), "VLC\\lua\\intf\\")
-            self.__playerController.vlcModulePath = self.__playerController.vlcIntfPath + "modules/?.luac"
+                self.__playerController.vlcIntfPath = (
+                    os.path.dirname(playerPath).replace("\\", "/") + "/lua/intf/"
+                )
+                self.__playerController.vlcIntfUserPath = os.path.join(
+                    os.getenv("APPDATA", "."), "VLC\\lua\\intf\\"
+                )
+            self.__playerController.vlcModulePath = (
+                self.__playerController.vlcIntfPath + "modules/?.luac"
+            )
+
             def _createIntfFolder(vlcSyncplayInterfaceDir):
-                self.__playerController._client.ui.showDebugMessage("Checking if syncplay.lua intf directory exists")
+                self.__playerController._client.ui.showDebugMessage(
+                    "Checking if syncplay.lua intf directory exists"
+                )
                 from pathlib import Path
+
                 if os.path.exists(vlcSyncplayInterfaceDir):
-                    self.__playerController._client.ui.showDebugMessage("Found syncplay.lua intf directory:'{}'".format(vlcSyncplayInterfaceDir))
+                    self.__playerController._client.ui.showDebugMessage(
+                        "Found syncplay.lua intf directory:'{}'".format(
+                            vlcSyncplayInterfaceDir
+                        )
+                    )
                 else:
-                    self.__playerController._client.ui.showDebugMessage("syncplay.lua intf directory not found, so creating directory '{}'".format(vlcSyncplayInterfaceDir))
-                    Path(vlcSyncplayInterfaceDir).mkdir(mode=0o755, parents=True, exist_ok=True)
+                    self.__playerController._client.ui.showDebugMessage(
+                        "syncplay.lua intf directory not found, so creating directory '{}'".format(
+                            vlcSyncplayInterfaceDir
+                        )
+                    )
+                    Path(vlcSyncplayInterfaceDir).mkdir(
+                        mode=0o755, parents=True, exist_ok=True
+                    )
+
             try:
                 _createIntfFolder(self.__playerController.vlcIntfUserPath)
                 copyForm = utils.findResourcePath("syncplay.lua")
-                copyTo = os.path.join(self.__playerController.vlcIntfUserPath, "syncplay.lua")
-                self.__playerController._client.ui.showDebugMessage("Copying VLC Lua Interface from '{}' to '{}'".format(copyForm, copyTo))
+                copyTo = os.path.join(
+                    self.__playerController.vlcIntfUserPath, "syncplay.lua"
+                )
+                self.__playerController._client.ui.showDebugMessage(
+                    "Copying VLC Lua Interface from '{}' to '{}'".format(
+                        copyForm, copyTo
+                    )
+                )
                 import shutil
+
                 if os.path.exists(copyTo):
                     os.chmod(copyTo, 0o755)
                 shutil.copyfile(copyForm, copyTo)
@@ -480,31 +611,47 @@ class VlcPlayer(BasePlayer):
             if isLinux():
                 self.__playerController.vlcDataPath = "/usr/lib/syncplay/resources"
             else:
-                self.__playerController.vlcDataPath = utils.findWorkingDir() + "\\resources"
+                self.__playerController.vlcDataPath = (
+                    utils.findWorkingDir() + "\\resources"
+                )
             self.__playerController.SLAVE_ARGS.append(
-                '--lua-config=syncplay={{modulepath=\"{}\",port=\"{}\"}}'.format(
-                    self.__playerController.vlcModulePath, str(self.__playerController.vlcport)))
+                '--lua-config=syncplay={{modulepath="{}",port="{}"}}'.format(
+                    self.__playerController.vlcModulePath,
+                    str(self.__playerController.vlcport),
+                )
+            )
 
             call.extend(self.__playerController.SLAVE_ARGS)
             if args:
                 for arg in args:
-                    if "=" in arg and "\"" in arg:
+                    if "=" in arg and '"' in arg:
                         (argName, argValue) = arg.split("=", 1)
-                        if argValue.startswith("\"") and argValue.endswith("\""):
+                        if argValue.startswith('"') and argValue.endswith('"'):
                             arg = argName + "=" + argValue[1:-1]
                     call.extend([arg])
 
             self._vlcVersion = None
-            if isWindows() and getattr(sys, 'frozen', '') and getattr(sys, '_MEIPASS', '') is not None:  # Needed for pyinstaller --onefile bundle
+            if (
+                isWindows()
+                and getattr(sys, "frozen", "")
+                and getattr(sys, "_MEIPASS", "") is not None
+            ):  # Needed for pyinstaller --onefile bundle
                 self.__process = subprocess.Popen(
-                    call, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE,
-                    shell=False, creationflags=0x08000000)
+                    call,
+                    stdin=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    shell=False,
+                    creationflags=0x08000000,
+                )
             else:
-                self.__process = subprocess.Popen(call, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+                self.__process = subprocess.Popen(
+                    call, stderr=subprocess.PIPE, stdout=subprocess.PIPE
+                )
             self.timeVLCLaunched = time.time()
             if self._shouldListenForSTDOUT():
-                for line in iter(self.__process.stderr.readline, ''):
-                    line = line.decode('utf-8')
+                for line in iter(self.__process.stderr.readline, ""):
+                    line = line.decode("utf-8")
                     self.vlcHasResponded = True
                     self.timeVLCLaunched = None
                     if "[syncplay]" in line:
@@ -514,30 +661,41 @@ class VlcPlayer(BasePlayer):
                             break
                         elif "Couldn't find lua interface" in line:
                             self.__playerController._client.ui.showErrorMessage(
-                                getMessage("vlc-failed-noscript").format(line), True)
+                                getMessage("vlc-failed-noscript").format(line), True
+                            )
                             break
                         elif "lua interface error" in line:
                             self.__playerController._client.ui.showErrorMessage(
-                                getMessage("media-player-error").format(line), True)
+                                getMessage("media-player-error").format(line), True
+                            )
                             break
             if not isMacOS():
                 self.__process.stderr = None
             else:
-                vlcoutputthread = threading.Thread(target=self.handle_vlcoutput, args=())
+                vlcoutputthread = threading.Thread(
+                    target=self.handle_vlcoutput, args=()
+                )
                 vlcoutputthread.setDaemon(True)
                 vlcoutputthread.start()
             self.__playerController._vlcready.clear()
-            self._factory = VLCClientFactory(self.__playerController, self.vlcHasResponded, self.timeVLCLaunched, self.__process)
-            self.reactor.connectTCP('localhost', self.__playerController.vlcport, self._factory)
+            self._factory = VLCClientFactory(
+                self.__playerController,
+                self.vlcHasResponded,
+                self.timeVLCLaunched,
+                self.__process,
+            )
+            self.reactor.connectTCP(
+                "localhost", self.__playerController.vlcport, self._factory
+            )
 
         def _shouldListenForSTDOUT(self):
             return not isWindows()
 
         def handle_vlcoutput(self):
             out = self.__process.stderr
-            for line in iter(out.readline, ''):
-                line = line.decode('utf-8')
-                if '[syncplay] core interface debug: removing module' in line:
+            for line in iter(out.readline, ""):
+                line = line.decode("utf-8")
+                if "[syncplay] core interface debug: removing module" in line:
                     self.__playerController.drop()
                     break
             out.close()

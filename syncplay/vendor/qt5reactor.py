@@ -107,11 +107,18 @@ Subsequent port by therve
 import sys
 
 from syncplay.vendor.Qt.QtCore import (
-     QCoreApplication, QEventLoop, QObject, QSocketNotifier, QTimer, Signal)
+    QCoreApplication,
+    QEventLoop,
+    QObject,
+    QSocketNotifier,
+    QTimer,
+    Signal,
+)
 from twisted.internet import posixbase
 from twisted.internet.interfaces import IReactorFDSet
 from twisted.python import log, runtime
 from zope.interface import implementer
+
 
 class TwistedSocketNotifier(QObject):
     """Connection between an fd event and reader/writer callbacks."""
@@ -337,7 +344,9 @@ class QtEventReactor(QtReactor):
         if len(handles) > 0:
             val = None
             while val != WAIT_TIMEOUT:
-                val = MsgWaitForMultipleObjects(handles, 0, 0, QS_ALLINPUT | QS_ALLEVENTS)
+                val = MsgWaitForMultipleObjects(
+                    handles, 0, 0, QS_ALLINPUT | QS_ALLEVENTS
+                )
                 if val >= WAIT_OBJECT_0 and val < WAIT_OBJECT_0 + len(handles):
                     event_id = handles[val - WAIT_OBJECT_0]
                     if event_id in self._events:
@@ -346,7 +355,7 @@ class QtEventReactor(QtReactor):
                 elif val == WAIT_TIMEOUT:
                     pass
                 else:
-                    #print 'Got an unexpected return of %r' % val
+                    # print 'Got an unexpected return of %r' % val
                     return
 
     def _runAction(self, action, fd):
@@ -356,7 +365,7 @@ class QtEventReactor(QtReactor):
             closed = sys.exc_info()[1]
             log.deferr()
         if closed:
-            self._disconnectSelectable(fd, closed, action == 'doRead')
+            self._disconnectSelectable(fd, closed, action == "doRead")
 
     def iterate(self, delay=None, fromqt=False):
         """See twisted.internet.interfaces.IReactorCore.iterate."""
@@ -368,6 +377,7 @@ class QtEventReactor(QtReactor):
 def posixinstall():
     """Install the Qt reactor."""
     from twisted.internet.main import installReactor
+
     p = QtReactor()
     installReactor(p)
 
@@ -375,13 +385,15 @@ def posixinstall():
 def win32install():
     """Install the Qt reactor."""
     from twisted.internet.main import installReactor
+
     p = QtEventReactor()
     installReactor(p)
 
 
-if runtime.platform.getType() == 'win32':
+if runtime.platform.getType() == "win32":
     from win32event import CreateEvent, MsgWaitForMultipleObjects
     from win32event import WAIT_OBJECT_0, WAIT_TIMEOUT, QS_ALLINPUT, QS_ALLEVENTS
+
     install = win32install
 else:
     install = posixinstall

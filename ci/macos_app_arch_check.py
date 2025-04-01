@@ -3,9 +3,12 @@ import subprocess
 
 from typing import List
 
+
 def run_external_command(command: List[str], print_output: bool = True) -> str:
     """Wrapper to ease the use of calling external programs"""
-    process = subprocess.Popen(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    process = subprocess.Popen(
+        command, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+    )
     output, _ = process.communicate()
     ret = process.wait()
     if (output and print_output) or ret != 0:
@@ -13,6 +16,7 @@ def run_external_command(command: List[str], print_output: bool = True) -> str:
     if ret != 0:
         raise RuntimeError("Command returned non-zero exit code %s!" % ret)
     return output
+
 
 def arch_checker(path: str) -> bool:
     no_error_found = True
@@ -23,19 +27,25 @@ def arch_checker(path: str) -> bool:
             no_error_found = False
     return no_error_found
 
+
 def analyze(bundle_path: str) -> None:
-    valid = all([arch_checker(f"{bundle_path}/Contents/Frameworks/**/*.dylib"),
-                 arch_checker(f"{bundle_path}/Contents/Frameworks/**/*.so"),
-                 arch_checker(f"{bundle_path}/Contents/Resources/lib/**/*.dylib"),
-                 arch_checker(f"{bundle_path}/Contents/Resources/lib/**/*.so"),
-                ])
+    valid = all(
+        [
+            arch_checker(f"{bundle_path}/Contents/Frameworks/**/*.dylib"),
+            arch_checker(f"{bundle_path}/Contents/Frameworks/**/*.so"),
+            arch_checker(f"{bundle_path}/Contents/Resources/lib/**/*.dylib"),
+            arch_checker(f"{bundle_path}/Contents/Resources/lib/**/*.so"),
+        ]
+    )
     if valid:
         print(f"The analyzed bundle '{bundle_path}' is universal2.")
     else:
         raise RuntimeError("The analyzed bundle is NOT universal2!")
 
+
 def main():
     analyze("Syncplay.app")
+
 
 if __name__ == "__main__":
     main()

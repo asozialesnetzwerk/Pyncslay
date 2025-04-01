@@ -20,18 +20,41 @@ import syncplay
 from syncplay import constants
 from syncplay.messages import getMessage
 from syncplay.protocols import SyncServerProtocol
-from syncplay.utils import RoomPasswordProvider, NotControlledRoom, RandomStringGenerator, meetsMinVersion, playlistIsValid, truncateText, getListAsMultilineString, convertMultilineStringToList
+from syncplay.utils import (
+    RoomPasswordProvider,
+    NotControlledRoom,
+    RandomStringGenerator,
+    meetsMinVersion,
+    playlistIsValid,
+    truncateText,
+    getListAsMultilineString,
+    convertMultilineStringToList,
+)
+
 
 class SyncFactory(Factory):
-    def __init__(self, port='', password='', motdFilePath=None, roomsDbFile=None, permanentRoomsFile=None, isolateRooms=False, salt=None,
-                 disableReady=False, disableChat=False, maxChatMessageLength=constants.MAX_CHAT_MESSAGE_LENGTH,
-                 maxUsernameLength=constants.MAX_USERNAME_LENGTH, statsDbFile=None, tlsCertPath=None):
+    def __init__(
+        self,
+        port="",
+        password="",
+        motdFilePath=None,
+        roomsDbFile=None,
+        permanentRoomsFile=None,
+        isolateRooms=False,
+        salt=None,
+        disableReady=False,
+        disableChat=False,
+        maxChatMessageLength=constants.MAX_CHAT_MESSAGE_LENGTH,
+        maxUsernameLength=constants.MAX_USERNAME_LENGTH,
+        statsDbFile=None,
+        tlsCertPath=None,
+    ):
         self.isolateRooms = isolateRooms
         syncplay.messages.setLanguage(syncplay.messages.getInitialLanguage())
         print(getMessage("welcome-server-notification").format(syncplay.version))
         self.port = port
         if password:
-            password = password.encode('utf-8')
+            password = password.encode("utf-8")
             password = hashlib.md5(password).hexdigest()
         self.password = password
         if salt is None:
@@ -42,10 +65,26 @@ class SyncFactory(Factory):
         self.roomsDbFile = roomsDbFile
         self.disableReady = disableReady
         self.disableChat = disableChat
-        self.maxChatMessageLength = maxChatMessageLength if maxChatMessageLength is not None else constants.MAX_CHAT_MESSAGE_LENGTH
-        self.maxUsernameLength = maxUsernameLength if maxUsernameLength is not None else constants.MAX_USERNAME_LENGTH
-        self.permanentRoomsFile = permanentRoomsFile if permanentRoomsFile is not None and os.path.isfile(permanentRoomsFile) else None
-        self.permanentRooms = self.loadListFromMultilineTextFile(self.permanentRoomsFile) if self.permanentRoomsFile is not None else []
+        self.maxChatMessageLength = (
+            maxChatMessageLength
+            if maxChatMessageLength is not None
+            else constants.MAX_CHAT_MESSAGE_LENGTH
+        )
+        self.maxUsernameLength = (
+            maxUsernameLength
+            if maxUsernameLength is not None
+            else constants.MAX_USERNAME_LENGTH
+        )
+        self.permanentRoomsFile = (
+            permanentRoomsFile
+            if permanentRoomsFile is not None and os.path.isfile(permanentRoomsFile)
+            else None
+        )
+        self.permanentRooms = (
+            self.loadListFromMultilineTextFile(self.permanentRoomsFile)
+            if self.permanentRoomsFile is not None
+            else []
+        )
         if not isolateRooms:
             self._roomManager = RoomManager(self.roomsDbFile, self.permanentRooms)
         else:
@@ -53,7 +92,7 @@ class SyncFactory(Factory):
         if statsDbFile is not None:
             self._statsDbHandle = StatsDBManager(statsDbFile)
             self._statsRecorder = StatsRecorder(self._statsDbHandle, self._roomManager)
-            statsDelay = 5*(int(self.port)%10 + 1)
+            statsDelay = 5 * (int(self.port) % 10 + 1)
             self._statsRecorder.startRecorder(statsDelay)
         else:
             self._statsDbHandle = None
@@ -108,17 +147,29 @@ class SyncFactory(Factory):
                 oldClient = True
         if self._motdFilePath and os.path.isfile(self._motdFilePath):
             tmpl = codecs.open(self._motdFilePath, "r", "utf-8-sig").read()
-            args = dict(version=syncplay.version, userIp=userIp, username=username, room=room)
+            args = dict(
+                version=syncplay.version, userIp=userIp, username=username, room=room
+            )
             try:
                 motd = Template(tmpl).substitute(args)
                 if oldClient:
-                    motdwarning = getMessage("new-syncplay-available-motd-message").format(clientVersion)
+                    motdwarning = getMessage(
+                        "new-syncplay-available-motd-message"
+                    ).format(clientVersion)
                     motd = "{}\n{}".format(motdwarning, motd)
-                return motd if len(motd) < constants.SERVER_MAX_TEMPLATE_LENGTH else getMessage("server-messed-up-motd-too-long").format(constants.SERVER_MAX_TEMPLATE_LENGTH, len(motd))
+                return (
+                    motd
+                    if len(motd) < constants.SERVER_MAX_TEMPLATE_LENGTH
+                    else getMessage("server-messed-up-motd-too-long").format(
+                        constants.SERVER_MAX_TEMPLATE_LENGTH, len(motd)
+                    )
+                )
             except ValueError:
                 return getMessage("server-messed-up-motd-unescaped-placeholders")
         elif oldClient:
-            return getMessage("new-syncplay-available-motd-message").format(clientVersion)
+            return getMessage("new-syncplay-available-motd-message").format(
+                clientVersion
+            )
         else:
             return ""
 
@@ -147,7 +198,10 @@ class SyncFactory(Factory):
     def sendRoomSwitchMessage(self, watcher):
         l = lambda w: w.sendSetting(watcher.getName(), watcher.getRoom(), None, None)
         self._roomManager.broadcast(watcher, l)
-        self._roomManager.broadcastRoom(watcher, lambda w: w.sendSetReady(watcher.getName(), watcher.isReady(), False))
+        self._roomManager.broadcastRoom(
+            watcher,
+            lambda w: w.sendSetReady(watcher.getName(), watcher.isReady(), False),
+        )
         if self.roomsDbFile:
             l = lambda w: w.sendList(toGUIOnly=True)
             self._roomManager.broadcast(watcher, l)
@@ -161,20 +215,40 @@ class SyncFactory(Factory):
                 self._roomManager.broadcast(watcher, l)
 
     def sendLeftMessage(self, watcher):
-        l = lambda w: w.sendSetting(watcher.getName(), watcher.getRoom(), None, {"left": True})
+        l = lambda w: w.sendSetting(
+            watcher.getName(), watcher.getRoom(), None, {"left": True}
+        )
         self._roomManager.broadcast(watcher, l)
 
     def sendJoinMessage(self, watcher):
-        l = lambda w: w.sendSetting(watcher.getName(), watcher.getRoom(), None, {"joined": True, "version": watcher.getVersion(), "features": watcher.getFeatures()}) if w != watcher else None
+        l = lambda w: (
+            w.sendSetting(
+                watcher.getName(),
+                watcher.getRoom(),
+                None,
+                {
+                    "joined": True,
+                    "version": watcher.getVersion(),
+                    "features": watcher.getFeatures(),
+                },
+            )
+            if w != watcher
+            else None
+        )
         self._roomManager.broadcast(watcher, l)
-        self._roomManager.broadcastRoom(watcher, lambda w: w.sendSetReady(watcher.getName(), watcher.isReady(), False))
+        self._roomManager.broadcastRoom(
+            watcher,
+            lambda w: w.sendSetReady(watcher.getName(), watcher.isReady(), False),
+        )
         if self.roomsDbFile:
             l = lambda w: w.sendList(toGUIOnly=True)
             self._roomManager.broadcast(watcher, l)
 
     def sendFileUpdate(self, watcher):
         if watcher.getFile():
-            l = lambda w: w.sendSetting(watcher.getName(), watcher.getRoom(), watcher.getFile(), None)
+            l = lambda w: w.sendSetting(
+                watcher.getName(), watcher.getRoom(), watcher.getFile(), None
+            )
             self._roomManager.broadcast(watcher, l)
 
     def forcePositionUpdate(self, watcher, doSeek, watcherPauseState):
@@ -186,8 +260,12 @@ class SyncFactory(Factory):
             room.setPosition(watcher.getPosition(), setBy)
             self._roomManager.broadcastRoom(watcher, l)
         else:
-            watcher.sendState(room.getPosition(), watcherPauseState, False, watcher, True)  # Fixes BC break with 1.2.x
-            watcher.sendState(room.getPosition(), room.isPaused(), True, room.getSetBy(), True)
+            watcher.sendState(
+                room.getPosition(), watcherPauseState, False, watcher, True
+            )  # Fixes BC break with 1.2.x
+            watcher.sendState(
+                room.getPosition(), room.isPaused(), True, room.getSetBy(), True
+            )
 
     def getAllWatchersForUser(self, forUser):
         return self._roomManager.getAllWatchersForUser(forUser)
@@ -202,17 +280,31 @@ class SyncFactory(Factory):
             success = RoomPasswordProvider.check(roomName, password, self._salt)
             if success:
                 watcher.getRoom().addController(watcher)
-            self._roomManager.broadcast(watcher, lambda w: w.sendControlledRoomAuthStatus(success, watcher.getName(), room._name))
+            self._roomManager.broadcast(
+                watcher,
+                lambda w: w.sendControlledRoomAuthStatus(
+                    success, watcher.getName(), room._name
+                ),
+            )
         except NotControlledRoom:
-            newName = RoomPasswordProvider.getControlledRoomName(roomName, password, self._salt)
+            newName = RoomPasswordProvider.getControlledRoomName(
+                roomName, password, self._salt
+            )
             watcher.sendNewControlledRoom(newName, password)
         except ValueError:
-            self._roomManager.broadcastRoom(watcher, lambda w: w.sendControlledRoomAuthStatus(False, watcher.getName(), room._name))
+            self._roomManager.broadcastRoom(
+                watcher,
+                lambda w: w.sendControlledRoomAuthStatus(
+                    False, watcher.getName(), room._name
+                ),
+            )
 
     def sendChat(self, watcher, message):
         message = truncateText(message, self.maxChatMessageLength)
         messageDict = {"message": message, "username": watcher.getName()}
-        self._roomManager.broadcastRoom(watcher, lambda w: w.sendChatMessage(messageDict))
+        self._roomManager.broadcastRoom(
+            watcher, lambda w: w.sendChatMessage(messageDict)
+        )
 
     def setReady(self, watcher, isReady, manuallyInitiated=True, username=None):
         if username and username != watcher.getName():
@@ -221,21 +313,51 @@ class SyncFactory(Factory):
                 for watcherToSet in room.getWatchers():
                     if watcherToSet.getName() == username:
                         watcherToSet.setReady(isReady)
-                        self._roomManager.broadcastRoom(watcherToSet, lambda w: w.sendSetReady(watcherToSet.getName(), watcherToSet.isReady(),  manuallyInitiated, watcher.getName()))
+                        self._roomManager.broadcastRoom(
+                            watcherToSet,
+                            lambda w: w.sendSetReady(
+                                watcherToSet.getName(),
+                                watcherToSet.isReady(),
+                                manuallyInitiated,
+                                watcher.getName(),
+                            ),
+                        )
                         if isReady:
-                            messageDict = { "message": getMessage("ready-chat-message").format(username, watcherToSet.getName()), "username": watcher.getName()}
+                            messageDict = {
+                                "message": getMessage("ready-chat-message").format(
+                                    username, watcherToSet.getName()
+                                ),
+                                "username": watcher.getName(),
+                            }
                         else:
-                            messageDict = {"message": getMessage("not-ready-chat-message").format(username, watcherToSet.getName()), "username": watcher.getName()}
-                        self._roomManager.broadcastRoom(watcher, lambda w: w.sendChatMessage(messageDict, "setOthersReadiness"))
+                            messageDict = {
+                                "message": getMessage("not-ready-chat-message").format(
+                                    username, watcherToSet.getName()
+                                ),
+                                "username": watcher.getName(),
+                            }
+                        self._roomManager.broadcastRoom(
+                            watcher,
+                            lambda w: w.sendChatMessage(
+                                messageDict, "setOthersReadiness"
+                            ),
+                        )
         else:
             watcher.setReady(isReady)
-            self._roomManager.broadcastRoom(watcher, lambda w: w.sendSetReady(watcher.getName(), watcher.isReady(), manuallyInitiated))
+            self._roomManager.broadcastRoom(
+                watcher,
+                lambda w: w.sendSetReady(
+                    watcher.getName(), watcher.isReady(), manuallyInitiated
+                ),
+            )
 
     def setPlaylist(self, watcher, files):
         room = watcher.getRoom()
         if room.canControl(watcher) and playlistIsValid(files):
             watcher.getRoom().setPlaylist(files, watcher)
-            self._roomManager.broadcastRoom(watcher, lambda w: w.setPlaylist(watcher.getName(), files))
+            self._roomManager.broadcastRoom(
+                watcher, lambda w: w.setPlaylist(watcher.getName(), files)
+            )
         else:
             watcher.setPlaylist(room.getName(), room.getPlaylist())
             watcher.setPlaylistIndex(room.getName(), room.getPlaylistIndex())
@@ -244,35 +366,47 @@ class SyncFactory(Factory):
         room = watcher.getRoom()
         if room.canControl(watcher):
             watcher.getRoom().setPlaylistIndex(index, watcher)
-            self._roomManager.broadcastRoom(watcher, lambda w: w.setPlaylistIndex(watcher.getName(), index))
+            self._roomManager.broadcastRoom(
+                watcher, lambda w: w.setPlaylistIndex(watcher.getName(), index)
+            )
         else:
             watcher.setPlaylistIndex(room.getName(), room.getPlaylistIndex())
 
     def _allowTLSconnections(self, path):
         try:
-            privKey = open(path+'/privkey.pem', 'rt').read()
-            certif = open(path+'/cert.pem', 'rt').read()
-            chain = open(path+'/chain.pem', 'rt').read()
+            privKey = open(path + "/privkey.pem", "rt").read()
+            certif = open(path + "/cert.pem", "rt").read()
+            chain = open(path + "/chain.pem", "rt").read()
 
-            self.lastEditCertTime = os.path.getmtime(path+'/cert.pem')
+            self.lastEditCertTime = os.path.getmtime(path + "/cert.pem")
 
             privKeyPySSL = crypto.load_privatekey(crypto.FILETYPE_PEM, privKey)
             certifPySSL = crypto.load_certificate(crypto.FILETYPE_PEM, certif)
             chainPySSL = [crypto.load_certificate(crypto.FILETYPE_PEM, chain)]
 
-            cipherListString = "ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:"\
-                               "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:"\
-                               "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384"
+            cipherListString = (
+                "ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:"
+                "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:"
+                "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384"
+            )
             accCiphers = ssl.AcceptableCiphers.fromOpenSSLCipherString(cipherListString)
 
             try:
-                contextFactory = ssl.CertificateOptions(privateKey=privKeyPySSL, certificate=certifPySSL,
-                                                        extraCertChain=chainPySSL, acceptableCiphers=accCiphers,
-                                                        raiseMinimumTo=ssl.TLSVersion.TLSv1_2)
+                contextFactory = ssl.CertificateOptions(
+                    privateKey=privKeyPySSL,
+                    certificate=certifPySSL,
+                    extraCertChain=chainPySSL,
+                    acceptableCiphers=accCiphers,
+                    raiseMinimumTo=ssl.TLSVersion.TLSv1_2,
+                )
             except AttributeError:
-                contextFactory = ssl.CertificateOptions(privateKey=privKeyPySSL, certificate=certifPySSL,
-                                                        extraCertChain=chainPySSL, acceptableCiphers=accCiphers,
-                                                        method=TLSv1_2_METHOD)
+                contextFactory = ssl.CertificateOptions(
+                    privateKey=privKeyPySSL,
+                    certificate=certifPySSL,
+                    extraCertChain=chainPySSL,
+                    acceptableCiphers=accCiphers,
+                    method=TLSv1_2_METHOD,
+                )
 
             self.options = contextFactory
             self.serverAcceptsTLS = True
@@ -288,7 +422,7 @@ class SyncFactory(Factory):
 
     def checkLastEditCertTime(self):
         try:
-            outTime = os.path.getmtime(self.certPath+'/cert.pem')
+            outTime = os.path.getmtime(self.certPath + "/cert.pem")
         except:
             outTime = None
         return outTime
@@ -310,7 +444,9 @@ class StatsRecorder(object):
             self._dbHandle.connect()
             reactor.callLater(delay, self._scheduleClientSnapshot)
         except:
-            print("--- Error in initializing the stats database. Server Stats not enabled. ---")
+            print(
+                "--- Error in initializing the stats database. Server Stats not enabled. ---"
+            )
 
     def _scheduleClientSnapshot(self):
         self._clientSnapshotTimer = task.LoopingCall(self._runClientSnapshot)
@@ -325,6 +461,7 @@ class StatsRecorder(object):
                     self._dbHandle.addVersionLog(snapshotTime, watcher.getVersion())
         except:
             pass
+
 
 class RoomsRecorder(StatsRecorder):
     def __init__(self, dbHandle, roomManager):
@@ -334,9 +471,11 @@ class RoomsRecorder(StatsRecorder):
     def startRecorder(self, delay):
         try:
             self._dbHandle.connect()
-            reactor.callLater(delay, self._scheduleClientSnapshot) # TODO: FIX THIS!
+            reactor.callLater(delay, self._scheduleClientSnapshot)  # TODO: FIX THIS!
         except:
-            print("--- Error in initializing the stats database. Server Stats not enabled. ---")
+            print(
+                "--- Error in initializing the stats database. Server Stats not enabled. ---"
+            )
 
     def _scheduleClientSnapshot(self):
         self._clientSnapshotTimer = task.LoopingCall(self._runClientSnapshot)
@@ -351,6 +490,7 @@ class RoomsRecorder(StatsRecorder):
                     self._dbHandle.addVersionLog(snapshotTime, watcher.getVersion())
         except:
             pass
+
 
 class StatsDBManager(object):
     def __init__(self, dbpath):
@@ -362,16 +502,24 @@ class StatsDBManager(object):
             self._connection.close()
 
     def connect(self):
-        self._connection = adbapi.ConnectionPool("sqlite3", self._dbPath, check_same_thread=False)
+        self._connection = adbapi.ConnectionPool(
+            "sqlite3", self._dbPath, check_same_thread=False
+        )
         self._createSchema()
 
     def _createSchema(self):
-        initQuery = 'create table if not exists clients_snapshots (snapshot_time INTEGER, version STRING)'
+        initQuery = "create table if not exists clients_snapshots (snapshot_time INTEGER, version STRING)"
         return self._connection.runQuery(initQuery)
 
     def addVersionLog(self, timestamp, version):
-        content = (timestamp, version, )
-        self._connection.runQuery("INSERT INTO clients_snapshots VALUES (?, ?)", content)
+        content = (
+            timestamp,
+            version,
+        )
+        self._connection.runQuery(
+            "INSERT INTO clients_snapshots VALUES (?, ?)", content
+        )
+
 
 class RoomDBManager(object):
     def __init__(self, dbpath, loadroomscallback):
@@ -384,16 +532,20 @@ class RoomDBManager(object):
             self._connection.close()
 
     def connect(self):
-        self._connection = adbapi.ConnectionPool("sqlite3", self._dbPath, check_same_thread=False)
+        self._connection = adbapi.ConnectionPool(
+            "sqlite3", self._dbPath, check_same_thread=False
+        )
         self._createSchema().addCallback(self.loadRooms)
 
     def _createSchema(self):
-        initQuery = 'create table if not exists persistent_rooms (name STRING PRIMARY KEY, playlist STRING, playlistIndex INTEGER, position REAL, lastSavedUpdate INTEGER)'
+        initQuery = "create table if not exists persistent_rooms (name STRING PRIMARY KEY, playlist STRING, playlistIndex INTEGER, position REAL, lastSavedUpdate INTEGER)"
         return self._connection.runQuery(initQuery)
 
     def saveRoom(self, name, playlist, playlistIndex, position, lastUpdate):
         content = (name, playlist, playlistIndex, position, lastUpdate)
-        self._connection.runQuery("INSERT OR REPLACE INTO persistent_rooms VALUES (?, ?, ?, ?, ?)", content)
+        self._connection.runQuery(
+            "INSERT OR REPLACE INTO persistent_rooms VALUES (?, ?, ?, ?, ?)", content
+        )
 
     def deleteRoom(self, name):
         self._connection.runQuery("DELETE FROM persistent_rooms where name = ?", [name])
@@ -405,6 +557,7 @@ class RoomDBManager(object):
 
     def loadedRooms(self, rooms):
         self._loadRoomsCallback(rooms)
+
 
 class RoomManager(object):
     def __init__(self, roomsdbfile=None, permanentRooms=[]):
@@ -502,14 +655,16 @@ class RoomManager(object):
                 self._roomsDbHandle.deleteRoom(room.getName())
             del self._rooms[room.getName()]
 
-    def findFreeUsername(self, username, maxUsernameLength=constants.MAX_USERNAME_LENGTH):
+    def findFreeUsername(
+        self, username, maxUsernameLength=constants.MAX_USERNAME_LENGTH
+    ):
         username = truncateText(username, maxUsernameLength)
         allnames = []
         for room in self._rooms.values():
             for watcher in room.getWatchers():
                 allnames.append(watcher.getName().lower())
         while username.lower() in allnames:
-            username += '_'
+            username += "_"
         return username
 
     def exportRooms(self):
@@ -570,14 +725,25 @@ class Room(object):
     def isNotPermanent(self):
         return not self.isPermanent()
 
-    def sanitizeFilename(self, filename, blacklist="<>:/\\|?*\"", placeholder="_"):
-        return ''.join([c if c not in blacklist and ord(c) >= 32 else placeholder for c in filename])
+    def sanitizeFilename(self, filename, blacklist='<>:/\\|?*"', placeholder="_"):
+        return "".join(
+            [
+                c if c not in blacklist and ord(c) >= 32 else placeholder
+                for c in filename
+            ]
+        )
 
     def writeToDb(self):
         if not self.isPersistent():
             return
         processed_playlist = getListAsMultilineString(self._playlist)
-        self._roomsDbHandle.saveRoom(self._name, processed_playlist, self._playlistIndex, self._position, self._lastSavedUpdate)
+        self._roomsDbHandle.saveRoom(
+            self._name,
+            processed_playlist,
+            self._playlistIndex,
+            self._position,
+            self._lastSavedUpdate,
+        )
 
     def loadRoom(self, room):
         name, playlist, playlistindex, position, lastupdate = room
@@ -599,7 +765,9 @@ class Room(object):
             self._lastSavedUpdate = self._lastUpdate = time.time()
             return self._position
         elif self._position is not None:
-            return self._position + (age if self._playState == self.STATE_PLAYING else 0)
+            return self._position + (
+                age if self._playState == self.STATE_PLAYING else 0
+            )
         else:
             return 0
 
@@ -668,6 +836,7 @@ class Room(object):
     def getControllers(self):
         return []
 
+
 class ControlledRoom(Room):
     def __init__(self, name, roomsdbhandle):
         Room.__init__(self, name, roomsdbhandle)
@@ -682,7 +851,9 @@ class ControlledRoom(Room):
             self._lastUpdate = time.time()
             return self._position
         elif self._position is not None:
-            return self._position + (age if self._playState == self.STATE_PLAYING else 0)
+            return self._position + (
+                age if self._playState == self.STATE_PLAYING else 0
+            )
         else:
             return 0
 
@@ -809,17 +980,27 @@ class Watcher(object):
 
     def isGUIUser(self, clientFeatures):
         clientFeatures = self._connector.getFeatures()
-        uiMode = clientFeatures["uiMode"] if "uiMode" in clientFeatures else constants.UNKNOWN_UI_MODE
+        uiMode = (
+            clientFeatures["uiMode"]
+            if "uiMode" in clientFeatures
+            else constants.UNKNOWN_UI_MODE
+        )
         if uiMode == constants.UNKNOWN_UI_MODE:
             uiMode = constants.FALLBACK_ASSUMED_UI_MODE
         return uiMode == constants.GRAPHICAL_UI_MODE
 
     def supportsFeature(self, clientFeature):
         clientFeatures = self._connector.getFeatures()
-        return clientFeatures[clientFeature] if clientFeature in clientFeatures else False
+        return (
+            clientFeatures[clientFeature] if clientFeature in clientFeatures else False
+        )
 
-    def sendSetReady(self, username, isReady, manuallyInitiated=True, setByUsername=None):
-        self._connector.sendSetReady(username, isReady, manuallyInitiated, setByUsername)
+    def sendSetReady(
+        self, username, isReady, manuallyInitiated=True, setByUsername=None
+    ):
+        self._connector.sendSetReady(
+            username, isReady, manuallyInitiated, setByUsername
+        )
 
     def setPlaylistIndex(self, username, index):
         self._connector.setPlaylistIndex(username, index)
@@ -861,7 +1042,9 @@ class Watcher(object):
     def __hasPauseChanged(self, paused):
         if paused is None:
             return False
-        return self._room.isPaused() and not paused or not self._room.isPaused() and paused
+        return (
+            self._room.isPaused() and not paused or not self._room.isPaused() and paused
+        )
 
     def _updatePositionByAge(self, messageAge, paused, position):
         if not paused:
@@ -872,7 +1055,9 @@ class Watcher(object):
         pauseChanged = self.__hasPauseChanged(paused)
         self._lastUpdatedOn = time.time()
         if pauseChanged:
-            self.getRoom().setPaused(Room.STATE_PAUSED if paused else Room.STATE_PLAYING, self)
+            self.getRoom().setPaused(
+                Room.STATE_PAUSED if paused else Room.STATE_PLAYING, self
+            )
         if position is not None:
             position = self._updatePositionByAge(messageAge, paused, position)
             self.setPosition(position)
@@ -880,8 +1065,9 @@ class Watcher(object):
             self._server.forcePositionUpdate(self, doSeek, paused)
 
     def isController(self):
-        return RoomPasswordProvider.isControlledRoom(self._room.getName()) \
-            and self._room.canControl(self)
+        return RoomPasswordProvider.isControlledRoom(
+            self._room.getName()
+        ) and self._room.canControl(self)
 
 
 class ConfigurationGetter(object):
@@ -895,21 +1081,122 @@ class ConfigurationGetter(object):
     def _prepareArgParser(self):
         self._argparser = argparse.ArgumentParser(
             description=getMessage("server-argument-description"),
-            epilog=getMessage("server-argument-epilog"))
-        self._argparser.add_argument('--port', metavar='port', type=str, nargs='?', help=getMessage("server-port-argument"))
-        self._argparser.add_argument('--password', metavar='password', type=str, nargs='?', help=getMessage("server-password-argument"), default=os.environ.get('SYNCPLAY_PASSWORD'))
-        self._argparser.add_argument('--isolate-rooms', action='store_true', help=getMessage("server-isolate-room-argument"))
-        self._argparser.add_argument('--disable-ready', action='store_true', help=getMessage("server-disable-ready-argument"))
-        self._argparser.add_argument('--disable-chat', action='store_true', help=getMessage("server-chat-argument"))
-        self._argparser.add_argument('--salt', metavar='salt', type=str, nargs='?', help=getMessage("server-salt-argument"), default=os.environ.get('SYNCPLAY_SALT'))
-        self._argparser.add_argument('--motd-file', metavar='file', type=str, nargs='?', help=getMessage("server-motd-argument"))
-        self._argparser.add_argument('--rooms-db-file', metavar='rooms', type=str, nargs='?', help=getMessage("server-rooms-argument"))
-        self._argparser.add_argument('--permanent-rooms-file', metavar='permanentrooms', type=str, nargs='?', help=getMessage("server-permanent-rooms-argument"))
-        self._argparser.add_argument('--max-chat-message-length', metavar='maxChatMessageLength', type=int, nargs='?', help=getMessage("server-chat-maxchars-argument").format(constants.MAX_CHAT_MESSAGE_LENGTH))
-        self._argparser.add_argument('--max-username-length', metavar='maxUsernameLength', type=int, nargs='?', help=getMessage("server-maxusernamelength-argument").format(constants.MAX_USERNAME_LENGTH))
-        self._argparser.add_argument('--stats-db-file', metavar='file', type=str, nargs='?', help=getMessage("server-stats-db-file-argument"))
-        self._argparser.add_argument('--tls', metavar='path', type=str, nargs='?', help=getMessage("server-startTLS-argument"))
-        self._argparser.add_argument('--ipv4-only', action='store_true', help=getMessage("server-listen-only-on-ipv4"))
-        self._argparser.add_argument('--ipv6-only', action='store_true', help=getMessage("server-listen-only-on-ipv6"))
-        self._argparser.add_argument('--interface-ipv4', metavar='interfaceIPv4', type=str, nargs='?', help=getMessage("server-interface-ipv4"), default='')
-        self._argparser.add_argument('--interface-ipv6', metavar='interfaceIPv6', type=str, nargs='?', help=getMessage("server-interface-ipv6"), default='')
+            epilog=getMessage("server-argument-epilog"),
+        )
+        self._argparser.add_argument(
+            "--port",
+            metavar="port",
+            type=str,
+            nargs="?",
+            help=getMessage("server-port-argument"),
+        )
+        self._argparser.add_argument(
+            "--password",
+            metavar="password",
+            type=str,
+            nargs="?",
+            help=getMessage("server-password-argument"),
+            default=os.environ.get("SYNCPLAY_PASSWORD"),
+        )
+        self._argparser.add_argument(
+            "--isolate-rooms",
+            action="store_true",
+            help=getMessage("server-isolate-room-argument"),
+        )
+        self._argparser.add_argument(
+            "--disable-ready",
+            action="store_true",
+            help=getMessage("server-disable-ready-argument"),
+        )
+        self._argparser.add_argument(
+            "--disable-chat",
+            action="store_true",
+            help=getMessage("server-chat-argument"),
+        )
+        self._argparser.add_argument(
+            "--salt",
+            metavar="salt",
+            type=str,
+            nargs="?",
+            help=getMessage("server-salt-argument"),
+            default=os.environ.get("SYNCPLAY_SALT"),
+        )
+        self._argparser.add_argument(
+            "--motd-file",
+            metavar="file",
+            type=str,
+            nargs="?",
+            help=getMessage("server-motd-argument"),
+        )
+        self._argparser.add_argument(
+            "--rooms-db-file",
+            metavar="rooms",
+            type=str,
+            nargs="?",
+            help=getMessage("server-rooms-argument"),
+        )
+        self._argparser.add_argument(
+            "--permanent-rooms-file",
+            metavar="permanentrooms",
+            type=str,
+            nargs="?",
+            help=getMessage("server-permanent-rooms-argument"),
+        )
+        self._argparser.add_argument(
+            "--max-chat-message-length",
+            metavar="maxChatMessageLength",
+            type=int,
+            nargs="?",
+            help=getMessage("server-chat-maxchars-argument").format(
+                constants.MAX_CHAT_MESSAGE_LENGTH
+            ),
+        )
+        self._argparser.add_argument(
+            "--max-username-length",
+            metavar="maxUsernameLength",
+            type=int,
+            nargs="?",
+            help=getMessage("server-maxusernamelength-argument").format(
+                constants.MAX_USERNAME_LENGTH
+            ),
+        )
+        self._argparser.add_argument(
+            "--stats-db-file",
+            metavar="file",
+            type=str,
+            nargs="?",
+            help=getMessage("server-stats-db-file-argument"),
+        )
+        self._argparser.add_argument(
+            "--tls",
+            metavar="path",
+            type=str,
+            nargs="?",
+            help=getMessage("server-startTLS-argument"),
+        )
+        self._argparser.add_argument(
+            "--ipv4-only",
+            action="store_true",
+            help=getMessage("server-listen-only-on-ipv4"),
+        )
+        self._argparser.add_argument(
+            "--ipv6-only",
+            action="store_true",
+            help=getMessage("server-listen-only-on-ipv6"),
+        )
+        self._argparser.add_argument(
+            "--interface-ipv4",
+            metavar="interfaceIPv4",
+            type=str,
+            nargs="?",
+            help=getMessage("server-interface-ipv4"),
+            default="",
+        )
+        self._argparser.add_argument(
+            "--interface-ipv6",
+            metavar="interfaceIPv6",
+            type=str,
+            nargs="?",
+            help=getMessage("server-interface-ipv6"),
+            default="",
+        )

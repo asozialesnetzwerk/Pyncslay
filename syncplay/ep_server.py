@@ -52,25 +52,35 @@ def main():
         args.max_chat_message_length,
         args.max_username_length,
         args.stats_db_file,
-        args.tls
+        args.tls,
     )
 
     if args.ipv6_only is True:
-        endpoint6 = TCP6ServerEndpoint(reactor, int(args.port), interface=args.interface_ipv6)
+        endpoint6 = TCP6ServerEndpoint(
+            reactor, int(args.port), interface=args.interface_ipv6
+        )
         endpoint6.listen(factory).addCallbacks(isListening6, failed6)
     elif args.ipv4_only is True:
-        endpoint4 = TCP4ServerEndpoint(reactor, int(args.port), interface=args.interface_ipv4)
+        endpoint4 = TCP4ServerEndpoint(
+            reactor, int(args.port), interface=args.interface_ipv4
+        )
         endpoint4.listen(factory).addCallbacks(isListening4, failed4)
     else:
-        endpoint6 = TCP6ServerEndpoint(reactor, int(args.port), interface=args.interface_ipv6)
+        endpoint6 = TCP6ServerEndpoint(
+            reactor, int(args.port), interface=args.interface_ipv6
+        )
         endpoint6.listen(factory).addCallbacks(isListening6, failed6)
-        endpoint4 = TCP4ServerEndpoint(reactor, int(args.port), interface=args.interface_ipv4)
+        endpoint4 = TCP4ServerEndpoint(
+            reactor, int(args.port), interface=args.interface_ipv4
+        )
         endpoint4.listen(factory).addCallbacks(isListening4, failed4)
 
     if ServerStatus.listening6 or ServerStatus.listening4:
         reactor.run()
     else:
-        print("Unable to listen using either IPv4 and IPv6 protocols. Quitting the server now.")
+        print(
+            "Unable to listen using either IPv4 and IPv6 protocols. Quitting the server now."
+        )
         sys.exit()
 
 

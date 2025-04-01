@@ -30,14 +30,15 @@ messages = {
     "tr": messages_tr.tr,
     "ru": messages_ru.ru,
     "zh_CN": messages_zh_CN.zh_CN,
-     "ko": messages_ko.ko,
-    "CURRENT": None
+    "ko": messages_ko.ko,
+    "CURRENT": None,
 }
 
 no_osd_message_list = [
     "slowdown-notification",
     "revert-notification",
 ]
+
 
 def getLanguages():
     langList = {}
@@ -46,12 +47,14 @@ def getLanguages():
             langList[lang] = getMessage("LANGUAGE", lang)
     return langList
 
+
 def getLanguageTags():
     langList = {}
     for lang in messages:
         if lang != "CURRENT":
             langList[lang] = getMessage("LANGUAGE-TAG", lang)
     return langList
+
 
 def isNoOSDMessage(message):
     for no_osd_message in no_osd_message_list:
@@ -61,8 +64,10 @@ def isNoOSDMessage(message):
             return True
     return False
 
+
 def setLanguage(lang):
     messages["CURRENT"] = lang
+
 
 def getMissingStrings():
     missingStrings = ""
@@ -70,10 +75,14 @@ def getMissingStrings():
         if lang != "en" and lang != "CURRENT":
             for message in messages["en"]:
                 if message not in messages[lang]:
-                    missingStrings = missingStrings + "({}) Missing: {}\n".format(lang, message)
+                    missingStrings = missingStrings + "({}) Missing: {}\n".format(
+                        lang, message
+                    )
             for message in messages[lang]:
                 if message not in messages["en"]:
-                    missingStrings = missingStrings + "({}) Unused: {}\n".format(lang, message)
+                    missingStrings = missingStrings + "({}) Unused: {}\n".format(
+                        lang, message
+                    )
 
     return missingStrings
 
@@ -81,12 +90,15 @@ def getMissingStrings():
 def getInitialLanguage():
     try:
         import sys
-        frozen = getattr(sys, 'frozen', '')
-        if frozen and frozen in 'macosx_app':
+
+        frozen = getattr(sys, "frozen", "")
+        if frozen and frozen in "macosx_app":
             from PySide2.QtCore import QLocale
-            initialLanguage = QLocale.system().uiLanguages()[0].split('-')[0]
+
+            initialLanguage = QLocale.system().uiLanguages()[0].split("-")[0]
         else:
             import locale
+
             initialLanguage = locale.getdefaultlocale()[0].split("_")[0]
         if initialLanguage not in messages:
             initialLanguage = constants.FALLBACK_INITIAL_LANGUAGE
@@ -118,15 +130,19 @@ def getMessage(type_, locale=None):
         return str(messages["en"][type_])
     else:
         print("WARNING: Cannot find message '{}'!".format(type_))
-        #return "!{}".format(type_)  # TODO: Remove
+        # return "!{}".format(type_)  # TODO: Remove
         raise KeyError(type_)
+
 
 def populateLanguageArgument():
     languageTags = "/".join(getLanguageTags())
     langList = {}
     for lang in messages:
         if lang != "CURRENT":
-            messages[lang]["language-argument"] = messages[lang]["language-argument"].format(languageTags)
+            messages[lang]["language-argument"] = messages[lang][
+                "language-argument"
+            ].format(languageTags)
     return langList
+
 
 populateLanguageArgument()

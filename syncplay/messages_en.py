@@ -7,9 +7,8 @@
 en = {
     "LANGUAGE": "English",
     "LANGUAGE-TAG": "en",
-
     # Strings for Windows NSIS installer
-    "installer-language-file": "English.nlf", # Relevant .nlf file at https://github.com/kichik/nsis/tree/master/Contrib/Language%20files
+    "installer-language-file": "English.nlf",  # Relevant .nlf file at https://github.com/kichik/nsis/tree/master/Contrib/Language%20files
     "installer-associate": "Associate Syncplay with multimedia files.",
     "installer-shortcut": "Create Shortcuts in following locations:",
     "installer-start-menu": "Start Menu",
@@ -17,12 +16,9 @@ en = {
     "installer-quick-launch-bar": "Quick Launch Bar",
     "installer-automatic-updates": "Check for updates automatically",
     "installer-uninstall-configuration": "Delete configuration file.",
-
     # Client notifications
     "config-cleared-notification": "Settings cleared. Changes will be saved when you store a valid configuration.",
-
     "relative-config-notification": "Loaded relative configuration file(s): {}",
-
     "connection-attempt-notification": "Attempting to connect to {}:{}",  # Port, IP
     "reconnection-attempt-notification": "Connection with server lost, attempting to reconnect",
     "disconnection-notification": "Disconnected from server",
@@ -30,41 +26,32 @@ en = {
     "connected-successful-notification": "Successfully connected to server",
     "retrying-notification": "%s, Retrying in %d seconds...",  # Seconds
     "reachout-successful-notification": "Successfully reached {} ({})",
-
     "rewind-notification": "Rewinded due to time difference with {}",  # User
     "fastforward-notification": "Fast-forwarded due to time difference with {}",  # User
     "slowdown-notification": "Slowing down due to time difference with {}",  # User
     "revert-notification": "Reverting speed back to normal",
-
     "pause-notification": "{} paused at {}",  # User, Time
     "unpause-notification": "{} unpaused",  # User
     "seek-notification": "{} jumped from {} to {}",  # User, from time, to time
-
     "current-offset-notification": "Current offset: {} seconds",  # Offset
-
     "media-directory-list-updated-notification": "Syncplay media directories have been updated.",
-
     "room-join-notification": "{} has joined the room: '{}'",  # User
     "left-notification": "{} has left",  # User
     "left-paused-notification": "{} left, {} paused",  # User who left, User who paused
     "playing-notification": "{} is playing '{}' ({})",  # User, file, duration
     "playing-notification/room-addendum": " in room: '{}'",  # Room
-
     "not-all-ready": "Not ready: {}",  # Usernames
     "all-users-ready": "Everyone is ready ({} users)",  # Number of ready users
     "ready-to-unpause-notification": "You are now set as ready - unpause again to unpause",
     "set-as-ready-notification": "You are now set as ready",
     "set-as-not-ready-notification": "You are now set as not ready",
     "autoplaying-notification": "Auto-playing in {}...",  # Number of seconds until playback will start
-
     "identifying-as-controller-notification": "Identifying as room operator with password '{}'...",
     "failed-to-identify-as-controller-notification": "{} failed to identify as a room operator.",
     "authenticated-as-controller-notification": "{} authenticated as a room operator",
     "created-controlled-room-notification": "Created managed room '{}' with password '{}'. Please save this information for future reference!\n\nIn managed rooms everyone is kept in sync with the room operator(s) who are the only ones who can pause, unpause, seek, and change the playlist.\n\nYou should ask regular viewers to join the room '{}' but the room operators can join the room '{}' to automatically authenticate themselves.",  # RoomName, operatorPassword, roomName, roomName:operatorPassword
-
-    "other-set-as-ready-notification": "{} was set as ready by {}", # User set as ready, user who set them as ready
-    "other-set-as-not-ready-notification": "{} was set as not ready by {}", # User set as not ready, user who set them as not ready
-
+    "other-set-as-ready-notification": "{} was set as ready by {}",  # User set as ready, user who set them as ready
+    "other-set-as-not-ready-notification": "{} was set as not ready by {}",  # User set as not ready, user who set them as not ready
     "file-different-notification": "File you are playing appears to be different from {}'s",  # User
     "file-differences-notification": "Your file differs in the following way(s): {}",  # Differences
     "room-file-differences": "File differences: {}",  # File differences (filename, size, and/or duration)
@@ -72,25 +59,21 @@ en = {
     "file-difference-filesize": "size",
     "file-difference-duration": "duration",
     "alone-in-the-room": "You're alone in the room",
-
     "different-filesize-notification": " (their file size is different from yours!)",
     "userlist-playing-notification": "{} is playing:",  # Username
     "file-played-by-notification": "File: {} is being played by:",  # File
     "no-file-played-notification": "{} is not playing a file",  # Username
     "notplaying-notification": "People who are not playing any file:",
-    "userlist-room-notification":  "In room '{}':",  # Room
+    "userlist-room-notification": "In room '{}':",  # Room
     "userlist-file-notification": "File",
     "controller-userlist-userflag": "Operator",
     "ready-userlist-userflag": "Ready",
-
     "update-check-failed-notification": "Could not automatically check whether Syncplay {} is up to date. Want to visit https://syncplay.pl/ to manually check for updates?",  # Syncplay version
     "syncplay-uptodate-notification": "Syncplay is up to date",
     "syncplay-updateavailable-notification": "A new version of Syncplay is available. Do you want to visit the release page?",
-
     "mplayer-file-required-notification": "Syncplay using mplayer requires you to provide file when starting",
     "mplayer-file-required-notification/example": "Usage example: syncplay [options] [url|path/]filename",
     "mplayer2-required": "Syncplay is incompatible with MPlayer 1.x, please use mplayer2 or mpv",
-
     "unrecognized-command-notification": "Unrecognized command",
     "commandlist-notification": "Available commands:",
     "commandlist-notification/room": "\tr [name] - change room",
@@ -114,17 +97,13 @@ en = {
     "commandList-notification/delete": "\tqd [index] - delete the given entry from the playlist",
     "syncplay-version-notification": "Syncplay version: {}",  # syncplay.version
     "more-info-notification": "More info available at: {}",  # projectURL
-
     "gui-data-cleared-notification": "Syncplay has cleared the path and window state data used by the GUI.",
     "language-changed-msgbox-label": "Language will be changed when you run Syncplay.",
     "promptforupdate-label": "Is it okay for Syncplay to automatically check for updates from time to time?",
-
     "media-player-latency-warning": "Warning: The media player took {} seconds to respond. If you experience syncing issues then close applications to free up system resources, and if that doesn't work then try a different media player.",  # Seconds to respond
     "mpv-unresponsive-error": "mpv has not responded for {} seconds so appears to have malfunctioned. Please restart Syncplay.",  # Seconds to respond
-
     # Client prompts
     "enter-to-exit-prompt": "Press enter to exit\n",
-
     # Client errors
     "missing-arguments-error": "Some necessary arguments are missing, refer to --help",
     "server-timeout-error": "Connection with server timed out",
@@ -137,20 +116,16 @@ en = {
     "player-path-error": "Player path is not set properly. Supported players are: mpv, mpv.net, VLC, MPC-HC, MPC-BE, mplayer2, and IINA",
     "hostname-empty-error": "Hostname can't be empty",
     "empty-error": "{} can't be empty",  # Configuration
-    "media-player-error": "Media player error: \"{}\"",  # Error line
+    "media-player-error": 'Media player error: "{}"',  # Error line
     "unable-import-gui-error": "Could not import GUI libraries. You need to have the correct version of PySide installed for the GUI to work. If you want to run Syncplay in console mode then run it with the --no-gui command line switch. See https://syncplay.pl/guide/ for more details.",
     "unable-import-twisted-error": "Could not import Twisted. Please install Twisted v16.4.0 or later.",
-
     "arguments-missing-error": "Some necessary arguments are missing, refer to --help",
-
     "unable-to-start-client-error": "Unable to start client",
-
     "player-path-config-error": "Player path is not set properly. Supported players are: mpv, mpv.net, VLC, MPC-HC, MPC-BE, mplayer2, and IINA.",
     "no-file-path-config-error": "File must be selected before starting your player",
     "no-hostname-config-error": "Hostname can't be empty",
     "invalid-port-config-error": "Port must be valid",
     "empty-value-config-error": "{} can't be empty",  # Config option
-
     "not-json-error": "Not a json encoded string\n",
     "hello-arguments-error": "Not enough Hello arguments\n",  # DO NOT TRANSLATE
     "version-mismatch-error": "Mismatch between versions of client and server\n",
@@ -158,20 +133,16 @@ en = {
     "vlc-failed-noscript": "VLC has reported that the syncplay.lua interface script has not been installed. Please refer to https://syncplay.pl/LUA/ for instructions.",
     "vlc-failed-versioncheck": "This version of VLC is not supported by Syncplay.",
     "vlc-initial-warning": 'VLC does not always provide accurate position information to Syncplay, especially for .mp4 and .avi files. If you experience problems with erroneous seeking then please try an alternative media player such as <a href="https://mpv.io/">mpv</a> (or <a href="https://github.com/stax76/mpv.net/">mpv.net</a> for Windows users).',
-
     "feature-sharedPlaylists": "shared playlists",  # used for not-supported-by-server-error
     "feature-chat": "chat",  # used for not-supported-by-server-error
     "feature-readiness": "readiness",  # used for not-supported-by-server-error
     "feature-managedRooms": "managed rooms",  # used for not-supported-by-server-error
     "feature-setOthersReadiness": "readiness override",  # used for not-supported-by-server-error
-
     "not-supported-by-server-error": "The {} feature is not supported by this server..",  # feature
     "shared-playlists-not-supported-by-server-error": "The shared playlists feature may not be supported by the server. To ensure that it works correctly requires a server running Syncplay  {}+, but the server is running Syncplay {}.",  # minVersion, serverVersion
     "shared-playlists-disabled-by-server-error": "The shared playlist feature has been disabled in the server configuration. To use this feature you will need to connect to a different server.",
-
     "invalid-seek-value": "Invalid seek value",
     "invalid-offset-value": "Invalid offset value",
-
     "switch-file-not-found-error": "Could not switch to file '{0}'. Syncplay looks in specified media directories.",  # File not found
     "folder-search-timeout-error": "The search for media in media directories was aborted as it took too long to search through '{}' after having processed the first {:,} files. This will occur if you select a folder with too many sub-folders in your list of media folders to search through or if there are too many files to process. For automatic file switching to work again please select File->Set Media Directories in the menu bar and remove this directory or replace it with an appropriate sub-folder. If the folder is actually fine then you can re-enable it by selecting File->Set Media Directories and pressing 'OK'.",  # Folder, Files processed. Note: {:,} is {} but with added commas seprators.
     "folder-search-timeout-warning": "Warning: It has taken {} seconds to scan {:,} files in the folder '{}'. This will occur if you select a folder with too many sub-folders in your list of media folders to search through or if there are too many files to process.",  # Folder, Files processed. Note: {:,} is {} but with added commas seprators.
@@ -179,49 +150,40 @@ en = {
     "added-file-not-in-media-directory-error": "You loaded a file in '{}' which is not a known media directory. You can add this as a media directory by selecting File->Set Media Directories in the menu bar.",  # Folder
     "no-media-directories-error": "No media directories have been set. For shared playlist and file switching features to work properly please select File->Set Media Directories and specify where Syncplay should look to find media files.",
     "cannot-find-directory-error": "Could not find media directory '{}'. To update your list of media directories please select File->Set Media Directories from the menu bar and specify where Syncplay should look to find media files.",
-
     "failed-to-load-server-list-error": "Failed to load public server list. Please visit https://www.syncplay.pl/ in your browser.",
-
     # Client arguments
-    "argument-description": 'Solution to synchronize playback of multiple media player instances over the network.',
-    "argument-epilog": 'If no options supplied _config values will be used',
-    "nogui-argument": 'show no GUI',
+    "argument-description": "Solution to synchronize playback of multiple media player instances over the network.",
+    "argument-epilog": "If no options supplied _config values will be used",
+    "nogui-argument": "show no GUI",
     "host-argument": "server's address",
-    "name-argument": 'desired username',
-    "debug-argument": 'debug mode',
-    "force-gui-prompt-argument": 'make configuration prompt appear',
+    "name-argument": "desired username",
+    "debug-argument": "debug mode",
+    "force-gui-prompt-argument": "make configuration prompt appear",
     "no-store-argument": "don't store values in .syncplay",
-    "room-argument": 'default room',
-    "password-argument": 'server password',
-    "player-path-argument": 'path to your player executable',
-    "file-argument": 'file to play',
-    "args-argument": 'player options, if you need to pass options starting with - prepend them with single \'--\' argument',
-    "clear-gui-data-argument": 'resets path and window state GUI data stored as QSettings',
-    "language-argument": 'language for Syncplay messages ({})', # Languages
-
-    "version-argument": 'prints your version',
+    "room-argument": "default room",
+    "password-argument": "server password",
+    "player-path-argument": "path to your player executable",
+    "file-argument": "file to play",
+    "args-argument": "player options, if you need to pass options starting with - prepend them with single '--' argument",
+    "clear-gui-data-argument": "resets path and window state GUI data stored as QSettings",
+    "language-argument": "language for Syncplay messages ({})",  # Languages
+    "version-argument": "prints your version",
     "version-message": "You're using Syncplay version {} ({})",
-
     "load-playlist-from-file-argument": "loads playlist from text file (one entry per line)",
-
-
     # Client labels
     "config-window-title": "Syncplay configuration",
-
     "connection-group-title": "Connection settings",
     "host-label": "Server address: ",
-    "name-label":  "Username (optional):",
-    "password-label":  "Server password (if any):",
+    "name-label": "Username (optional):",
+    "password-label": "Server password (if any):",
     "room-label": "Default room: ",
     "roomlist-msgbox-label": "Edit room list (one per line)",
-
     "media-setting-title": "Media player settings",
     "executable-path-label": "Path to media player:",
     "media-path-label": "Path to video (optional):",
     "player-arguments-label": "Player arguments (if any):",
     "browse-label": "Browse",
     "update-server-list-label": "Update list",
-
     "more-title": "Show more settings",
     "never-rewind-value": "Never",
     "seconds-suffix": " secs",
@@ -242,7 +204,6 @@ en = {
     "readyatstart-label": "Set me as 'ready to watch' by default",
     "forceguiprompt-label": "Don't always show the Syncplay configuration window",  # (Inverted)
     "showosd-label": "Enable OSD Messages",
-
     "showosdwarnings-label": "Include warnings (e.g. when files are different, users not ready)",
     "showsameroomosd-label": "Include events in your room",
     "shownoncontrollerosd-label": "Include events from non-operators in managed rooms",
@@ -273,7 +234,6 @@ en = {
     "unpause-ifminusersready-option": "Unpause if already ready or if all others ready and min users ready",
     "unpause-always": "Always unpause",
     "syncplay-trusteddomains-title": "Trusted domains (for streaming services and hosted content)",
-
     "chat-title": "Chat message input",
     "chatinputenabled-label": "Enable chat input via mpv",
     "chatdirectinput-label": "Allow instant chat input (bypass having to press enter key to chat)",
@@ -290,19 +250,15 @@ en = {
     "chatoutputposition-label": "Output mode",
     "chat-chatroom-option": "Chatroom style",
     "chat-scrolling-option": "Scrolling style",
-
     "mpv-key-tab-hint": "[TAB] to toggle access to alphabet row key shortcuts.",
     "mpv-key-hint": "[ENTER] to send message. [ESC] to escape chat mode.",
     "alphakey-mode-warning-first-line": "You can temporarily use old mpv bindings with a-z keys.",
     "alphakey-mode-warning-second-line": "Press [TAB] to return to Syncplay chat mode.",
-
     "help-label": "Help",
     "reset-label": "Restore defaults",
     "run-label": "Run Syncplay",
     "storeandrun-label": "Store configuration and run Syncplay",
-
-    "contact-label": "Feel free to e-mail <a href=\"mailto:dev@syncplay.pl\"><nobr>dev@syncplay.pl</nobr></a>, <a href=\"https://github.com/Syncplay/syncplay/issues\"><nobr>create an issue</nobr></a> to report a bug/problem via GitHub, <a href=\"https://github.com/Syncplay/syncplay/discussions\"><nobr>start a discussion</nobr></a> to make a suggestion or ask a question via GitHub, <a href=\"https://www.facebook.com/SyncplaySoftware\"><nobr>like us on Facebook</nobr></a>, <a href=\"https://twitter.com/Syncplay/\"><nobr>follow us on Twitter</nobr></a>, or visit <a href=\"https://syncplay.pl/\"><nobr>https://syncplay.pl/</nobr></a>. Do not use Syncplay to send sensitive information.",
-
+    "contact-label": 'Feel free to e-mail <a href="mailto:dev@syncplay.pl"><nobr>dev@syncplay.pl</nobr></a>, <a href="https://github.com/Syncplay/syncplay/issues"><nobr>create an issue</nobr></a> to report a bug/problem via GitHub, <a href="https://github.com/Syncplay/syncplay/discussions"><nobr>start a discussion</nobr></a> to make a suggestion or ask a question via GitHub, <a href="https://www.facebook.com/SyncplaySoftware"><nobr>like us on Facebook</nobr></a>, <a href="https://twitter.com/Syncplay/"><nobr>follow us on Twitter</nobr></a>, or visit <a href="https://syncplay.pl/"><nobr>https://syncplay.pl/</nobr></a>. Do not use Syncplay to send sensitive information.',
     "joinroom-label": "Join room",
     "joinroom-menu-label": "Join room {}",
     "seektime-menu-label": "Seek to time",
@@ -314,20 +270,15 @@ en = {
     "autoplay-guipushbuttonlabel": "Play when all ready",
     "autoplay-minimum-label": "Min users:",
     "hideemptyrooms-menu-label": "Hide empty persistent rooms",
-
     "sendmessage-label": "Send",
-
     "ready-guipushbuttonlabel": "I'm ready to watch!",
-
     "roomuser-heading-label": "Room / User",
     "size-heading-label": "Size",
     "duration-heading-label": "Length",
     "filename-heading-label": "Filename",
     "notifications-heading-label": "Notifications",
     "userlist-heading-label": "List of who is playing what",
-
     "browseformedia-label": "Browse for media files",
-
     "file-menu-label": "&File",  # & precedes shortcut key
     "openmedia-menu-label": "&Open media file",
     "openstreamurl-menu-label": "Open &media stream URL",
@@ -342,33 +293,27 @@ en = {
     "identifyascontroller-menu-label": "&Identify as room operator",
     "settrusteddomains-menu-label": "Set &trusted domains",
     "addtrusteddomain-menu-label": "Add {} as trusted domain",  # Domain
-
     "edit-menu-label": "&Edit",
     "cut-menu-label": "Cu&t",
     "copy-menu-label": "&Copy",
     "paste-menu-label": "&Paste",
     "selectall-menu-label": "&Select All",
-
     "playback-menu-label": "&Playback",
-
     "help-menu-label": "&Help",
     "userguide-menu-label": "Open user &guide",
     "update-menu-label": "Check for &update",
-
     "startTLS-initiated": "Attempting secure connection",
     "startTLS-secure-connection-ok": "Secure connection established ({})",
     "startTLS-server-certificate-invalid": 'Secure connection failed. The server uses an invalid security certificate. This communication could be intercepted by a third party. For further details and troubleshooting see <a href="https://syncplay.pl/trouble">here</a>.',
     "startTLS-server-certificate-invalid-DNS-ID": "Syncplay does not trust this server because it uses a certificate that is not valid for its hostname.",
     "startTLS-not-supported-client": "This client does not support TLS",
     "startTLS-not-supported-server": "This server does not support TLS",
-
     # TLS certificate dialog
     "tls-information-title": "Certificate Details",
     "tls-dialog-status-label": "<strong>Syncplay is using an encrypted connection to {}.</strong>",
     "tls-dialog-desc-label": "Encryption with a digital certificate keeps information private as it is sent to or from the<br/>server {}.",
     "tls-dialog-connection-label": "Information encrypted using Transport Layer Security (TLS), version {} with the cipher<br/>suite: {}.",
     "tls-dialog-certificate-label": "Certificate issued by {} valid until {}.",
-
     # About dialog
     "about-menu-label": "&About Syncplay",
     "about-dialog-title": "About Syncplay",
@@ -376,43 +321,30 @@ en = {
     "about-dialog-license-text": "Licensed under the Apache&nbsp;License,&nbsp;Version 2.0",
     "about-dialog-license-button": "License",
     "about-dialog-dependencies": "Dependencies",
-
     "setoffset-msgbox-label": "Set offset",
     "offsetinfo-msgbox-label": "Offset (see https://syncplay.pl/guide/ for usage instructions):",
-
     "promptforstreamurl-msgbox-label": "Open media stream URL",
     "promptforstreamurlinfo-msgbox-label": "Stream URL",
-
     "addfolder-label": "Add folder",
-
     "adduris-msgbox-label": "Add URLs to playlist (one per line)",
     "editplaylist-msgbox-label": "Set playlist (one per line)",
     "trusteddomains-msgbox-label": "Domains it is okay to automatically switch to (one per line)",
-
     "createcontrolledroom-msgbox-label": "Create managed room",
     "controlledroominfo-msgbox-label": "Enter name of managed room\r\n(see https://syncplay.pl/guide/ for usage instructions):",
-
     "identifyascontroller-msgbox-label": "Identify as room operator",
     "identifyinfo-msgbox-label": "Enter operator password for this room\r\n(see https://syncplay.pl/guide/ for usage instructions):",
-
     "public-server-msgbox-label": "Select the public server for this viewing session",
-
     "megabyte-suffix": " MB",
-
     # Tooltips
-
     "host-tooltip": "Hostname or IP to connect to, optionally including port (e.g. syncplay.pl:8999). Only synchronised with people on same server/port.",
     "name-tooltip": "Nickname you will be known by. No registration, so can easily change later. Random name generated if none specified.",
     "password-tooltip": "Passwords are only needed for connecting to private servers.",
     "room-tooltip": "Room to join upon connection can be almost anything, but you will only be synchronised with people in the same room.",
-
     "edit-rooms-tooltip": "Edit room list.",
-
     "executable-path-tooltip": "Location of your chosen supported media player (mpv, mpv.net, VLC, MPC-HC/BE, mplayer2 or IINA).",
     "media-path-tooltip": "Location of video or stream to be opened. Necessary for mplayer2.",
     "player-arguments-tooltip": "Additional command line arguments / switches to pass on to this media player.",
     "mediasearcdirectories-arguments-tooltip": "Directories where Syncplay will search for media files, e.g. when you are using the click to switch feature. Syncplay will look recursively through sub-folders.",
-
     "more-tooltip": "Display less frequently used settings.",
     "filename-privacy-tooltip": "Privacy mode for sending currently playing filename to server.",
     "filesize-privacy-tooltip": "Privacy mode for sending size of currently playing file to server.",
@@ -442,7 +374,6 @@ en = {
     "unpause-ifothersready-tooltip": "If you press unpause when not ready, it will only unpause if others are ready.",
     "unpause-ifminusersready-tooltip": "If you press unpause when not ready, it will only unpause if others are ready and minimum users threshold is met.",
     "trusteddomains-arguments-tooltip": "Domains that it is okay for Syncplay to automatically switch to when shared playlists is enabled.",
-
     "chatinputenabled-tooltip": "Enable chat input in mpv (press enter to chat, enter to send, escape to cancel)",
     "chatdirectinput-tooltip": "Skip having to press 'enter' to go into chat input mode in mpv. Press TAB in mpv to temporarily disable this feature.",
     "font-label-tooltip": "Font used for when entering chat messages in mpv. Client-side only, so doesn't affect what other see.",
@@ -458,52 +389,44 @@ en = {
     "chatoutputmode-tooltip": "How chat messages are displayed.",
     "chatoutputmode-chatroom-tooltip": "Display new lines of chat directly below previous line.",
     "chatoutputmode-scrolling-tooltip": "Scroll chat text from right to left.",
-
     "help-tooltip": "Opens the Syncplay.pl user guide.",
     "reset-tooltip": "Reset all settings to the default configuration.",
     "update-server-list-tooltip": "Connect to syncplay.pl to update list of public servers.",
-
     "sslconnection-tooltip": "Securely connected to server. Click for certificate details.",
-
     "joinroom-tooltip": "Leave current room and joins specified room.",
     "seektime-msgbox-label": "Jump to specified time (in seconds / min:sec). Use +/- for relative seek.",
     "ready-tooltip": "Indicates whether you are ready to watch.",
     "autoplay-tooltip": "Auto-play when all users who have readiness indicator are ready and minimum user threshold met.",
     "switch-to-file-tooltip": "Double click to switch to {}",  # Filename
     "sendmessage-tooltip": "Send message to room",
-
     # In-userlist notes (GUI)
     "differentsize-note": "Different size!",
     "differentsizeandduration-note": "Different size and duration!",
     "differentduration-note": "Different duration!",
     "nofile-note": "(No file being played)",
-
     # Server messages to client
     "new-syncplay-available-motd-message": "You are using Syncplay {} but a newer version is available from https://syncplay.pl",  # ClientVersion
-    "persistent-rooms-notice": "NOTICE: This server uses persistent rooms, which means that the playlist information is stored between playback sessions. If you want to create a room where information is not saved then put -temp at the end of the room name.", # NOTE: Do not translate the word -temp
-    "ready-chat-message": "I have set {} as ready.", # User
-    "not-ready-chat-message": "I have set {} as not ready.", # User
-
+    "persistent-rooms-notice": "NOTICE: This server uses persistent rooms, which means that the playlist information is stored between playback sessions. If you want to create a room where information is not saved then put -temp at the end of the room name.",  # NOTE: Do not translate the word -temp
+    "ready-chat-message": "I have set {} as ready.",  # User
+    "not-ready-chat-message": "I have set {} as not ready.",  # User
     # Server notifications
     "welcome-server-notification": "Welcome to Syncplay server, ver. {0}",  # version
     "client-connected-room-server-notification": "{0}({2}) connected to room '{1}'",  # username, host, room
     "client-left-server-notification": "{0} left server",  # name
     "no-salt-notification": "PLEASE NOTE: To allow room operator passwords generated by this server instance to still work when the server is restarted, please add the following command line argument when running the Syncplay server in the future: --salt {}",  # Salt
-
-
     # Server arguments
-    "server-argument-description": 'Solution to synchronize playback of multiple media player instances over the network. Server instance',
-    "server-argument-epilog": 'If no options supplied _config values will be used',
-    "server-port-argument": 'server TCP port',
-    "server-password-argument": 'server password',
-    "server-isolate-room-argument": 'should rooms be isolated?',
+    "server-argument-description": "Solution to synchronize playback of multiple media player instances over the network. Server instance",
+    "server-argument-epilog": "If no options supplied _config values will be used",
+    "server-port-argument": "server TCP port",
+    "server-password-argument": "server password",
+    "server-isolate-room-argument": "should rooms be isolated?",
     "server-salt-argument": "random string used to generate managed room passwords",
     "server-disable-ready-argument": "disable readiness feature",
     "server-motd-argument": "path to file from which motd will be fetched",
     "server-rooms-argument": "path to database file to use and/or create to store persistent room data. Enables rooms to persist without watchers and through restarts",
     "server-permanent-rooms-argument": "path to file which lists permanent rooms that will be listed even if the room is empty (in the form of a text file which lists one room per line) - requires persistent rooms to be enabled",
     "server-chat-argument": "Should chat be disabled?",
-    "server-chat-maxchars-argument": "Maximum number of characters in a chat message (default is {})", # Default number of characters
+    "server-chat-maxchars-argument": "Maximum number of characters in a chat message (default is {})",  # Default number of characters
     "server-maxusernamelength-argument": "Maximum number of characters in a username (default is {})",
     "server-stats-db-file-argument": "Enable server stats using the SQLite db file provided",
     "server-startTLS-argument": "Enable TLS connections using the certificate files in the path provided",
@@ -513,7 +436,6 @@ en = {
     "server-listen-only-on-ipv6": "Listen only on IPv6 when starting the server.",
     "server-interface-ipv4": "The IP address to bind to for IPv4. Leaving it empty defaults to using all.",
     "server-interface-ipv6": "The IP address to bind to for IPv6. Leaving it empty defaults to using all.",
-
     # Server errors
     "unknown-command-server-error": "Unknown command {}",  # message
     "not-json-server-error": "Not a json encoded string {}",  # message
@@ -523,9 +445,8 @@ en = {
     "password-required-server-error": "Password required",
     "wrong-password-server-error": "Wrong password supplied",
     "hello-server-error": "Not enough Hello arguments",  # DO NOT TRANSLATE
-
     # Playlists
-    "playlist-selection-changed-notification":  "{} changed the playlist selection",  # Username
+    "playlist-selection-changed-notification": "{} changed the playlist selection",  # Username
     "playlist-contents-changed-notification": "{} updated the playlist",  # Username
     "cannot-find-file-for-playlist-switch-error": "Could not find file {} in media directories for playlist switch!",  # Filename
     "cannot-add-duplicate-error": "Could not add second entry for '{}' to the playlist as no duplicates are allowed.",  # Filename
@@ -538,7 +459,6 @@ en = {
     "addfilestoplaylist-menu-label": "Add file(s) to bottom of playlist",
     "addurlstoplaylist-menu-label": "Add URL(s) to bottom of playlist",
     "editplaylist-menu-label": "Edit playlist",
-
     "open-containing-folder": "Open folder containing this file",
     "addyourfiletoplaylist-menu-label": "Add your file to playlist",
     "addotherusersfiletoplaylist-menu-label": "Add {}'s file to playlist",  # [Username]
@@ -546,13 +466,10 @@ en = {
     "addotherusersstreamstoplaylist-menu-label": "Add {}' stream to playlist",  # [Username]
     "openusersstream-menu-label": "Open {}'s stream",  # [username]'s
     "openusersfile-menu-label": "Open {}'s file",  # [username]'s
-
-    "setasready-menu-label": "Set {} as ready", # [Username]
-    "setasnotready-menu-label": "Set {} as not ready", # [Username]
-
+    "setasready-menu-label": "Set {} as ready",  # [Username]
+    "setasnotready-menu-label": "Set {} as not ready",  # [Username]
     "playlist-instruction-item-message": "Drag file here to add it to the shared playlist.",
     "sharedplaylistenabled-tooltip": "Room operators can add files to a synced playlist to make it easy for everyone to watching the same thing. Configure media directories under 'Misc'.",
-
     "playlist-empty-error": "Playlist is currently empty.",
     "playlist-invalid-index-error": "Invalid playlist index",
 }

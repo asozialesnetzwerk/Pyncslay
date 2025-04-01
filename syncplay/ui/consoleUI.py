@@ -1,4 +1,3 @@
-
 import re
 import sys
 import threading
@@ -40,7 +39,7 @@ class ConsoleUI(threading.Thread):
         try:
             while True:
                 data = input()
-                data = data.rstrip('\n\r')
+                data = data.rstrip("\n\r")
                 if not self.promptMode.isSet():
                     self.PromptResult = data
                     self.promptMode.set()
@@ -59,7 +58,7 @@ class ConsoleUI(threading.Thread):
         if message != "":
             print(message)
         self.promptMode.clear()
-        print(prompt, end='')
+        print(prompt, end="")
         self.promptMode.wait()
         return self.PromptResult
 
@@ -70,17 +69,32 @@ class ConsoleUI(threading.Thread):
             for user in rooms[room]:
                 userflags = ""
                 if user.isController():
-                    userflags += "({}) ".format(getMessage("controller-userlist-userflag"))
+                    userflags += "({}) ".format(
+                        getMessage("controller-userlist-userflag")
+                    )
                 if user.isReady():
                     userflags += "({}) ".format(getMessage("ready-userlist-userflag"))
 
-                username = userflags + "*<{}>*".format(user.username) if user == currentUser else userflags + "<{}>".format(user.username)
+                username = (
+                    userflags + "*<{}>*".format(user.username)
+                    if user == currentUser
+                    else userflags + "<{}>".format(user.username)
+                )
                 if user.file:
-                    message = getMessage("userlist-playing-notification").format(username)
+                    message = getMessage("userlist-playing-notification").format(
+                        username
+                    )
                     self.showMessage(message, True)
-                    message = "    {}: '{}' ({})".format(getMessage("userlist-file-notification"), user.file['name'], formatTime(user.file['duration']))
+                    message = "    {}: '{}' ({})".format(
+                        getMessage("userlist-file-notification"),
+                        user.file["name"],
+                        formatTime(user.file["duration"]),
+                    )
                     if currentUser.file:
-                        if user.file['name'] == currentUser.file['name'] and user.file['size'] != currentUser.file['size']:
+                        if (
+                            user.file["name"] == currentUser.file["name"]
+                            and user.file["size"] != currentUser.file["size"]
+                        ):
                             message += getMessage("different-filesize-notification")
                     self.showMessage(message, True)
                 else:
@@ -100,9 +114,9 @@ class ConsoleUI(threading.Thread):
         pass
 
     def showMessage(self, message, noTimestamp=False, isMotd=False):
-        message = message.encode(sys.stdout.encoding, 'replace')
+        message = message.encode(sys.stdout.encoding, "replace")
         try:
-            message = message.decode('utf-8')
+            message = message.decode("utf-8")
         except UnicodeEncodeError:
             pass
         if noTimestamp:
@@ -132,19 +146,19 @@ class ConsoleUI(threading.Thread):
         o = re.match(constants.UI_OFFSET_REGEX, data)
         s = re.match(constants.UI_SEEK_REGEX, data)
         if o:
-            sign = self._extractSign(o.group('sign'))
-            t = utils.parseTime(o.group('time'))
+            sign = self._extractSign(o.group("sign"))
+            t = utils.parseTime(o.group("time"))
             if t is None:
                 return
-            if o.group('sign') == "/":
-                    t = self._syncplayClient.getPlayerPosition() - t
+            if o.group("sign") == "/":
+                t = self._syncplayClient.getPlayerPosition() - t
             elif sign:
-                    t = self._syncplayClient.getUserOffset() + sign * t
+                t = self._syncplayClient.getUserOffset() + sign * t
             self._syncplayClient.setUserOffset(t)
             return True
         elif s:
-            sign = self._extractSign(s.group('sign'))
-            t = utils.parseTime(s.group('time'))
+            sign = self._extractSign(s.group("sign"))
+            t = utils.parseTime(s.group("time"))
             if t is None:
                 return
             if sign:
@@ -157,19 +171,21 @@ class ConsoleUI(threading.Thread):
         command = re.match(constants.UI_COMMAND_REGEX, data)
         if not command:
             return
-        if command.group('command') in constants.COMMANDS_UNDO:
+        if command.group("command") in constants.COMMANDS_UNDO:
             tmp_pos = self._syncplayClient.getPlayerPosition()
-            self._syncplayClient.setPosition(self._syncplayClient.playerPositionBeforeLastSeek)
+            self._syncplayClient.setPosition(
+                self._syncplayClient.playerPositionBeforeLastSeek
+            )
             self._syncplayClient.playerPositionBeforeLastSeek = tmp_pos
-        elif command.group('command') in constants.COMMANDS_LIST:
+        elif command.group("command") in constants.COMMANDS_LIST:
             self.getUserlist()
-        elif command.group('command') in constants.COMMANDS_CHAT:
-            message = command.group('parameter')
+        elif command.group("command") in constants.COMMANDS_CHAT:
+            message = command.group("parameter")
             self._syncplayClient.sendChat(message)
-        elif command.group('command') in constants.COMMANDS_PAUSE:
+        elif command.group("command") in constants.COMMANDS_PAUSE:
             self._syncplayClient.setPaused(not self._syncplayClient.getPlayerPaused())
-        elif command.group('command') in constants.COMMANDS_ROOM:
-            room = command.group('parameter')
+        elif command.group("command") in constants.COMMANDS_ROOM:
+            room = command.group("parameter")
             if room is None:
                 if self._syncplayClient.userlist.currentUser.file:
                     room = self._syncplayClient.userlist.currentUser.file["name"]
@@ -178,29 +194,33 @@ class ConsoleUI(threading.Thread):
             self._syncplayClient.setRoom(room, resetAutoplay=True)
             self._syncplayClient.ui.updateRoomName(room)
             self._syncplayClient.sendRoom()
-        elif command.group('command') in constants.COMMANDS_CREATE:
-            roombasename = command.group('parameter')
+        elif command.group("command") in constants.COMMANDS_CREATE:
+            roombasename = command.group("parameter")
             if roombasename is None:
                 roombasename = self._syncplayClient.getRoom()
             roombasename = utils.stripRoomName(roombasename)
             self._syncplayClient.createControlledRoom(roombasename)
-        elif command.group('command') in constants.COMMANDS_AUTH:
-            controlpassword = command.group('parameter')
+        elif command.group("command") in constants.COMMANDS_AUTH:
+            controlpassword = command.group("parameter")
             self._syncplayClient.identifyAsController(controlpassword)
-        elif command.group('command') in constants.COMMANDS_TOGGLE:
+        elif command.group("command") in constants.COMMANDS_TOGGLE:
             self._syncplayClient.toggleReady()
-        elif command.group('command') in constants.COMMANDS_QUEUE:
-            filename = command.group('parameter')
+        elif command.group("command") in constants.COMMANDS_QUEUE:
+            filename = command.group("parameter")
             if filename is None:
                 self.showErrorMessage("No file/url given")
                 return
             self._syncplayClient.ui.addFileToPlaylist(filename)
-        elif command.group('command') in constants.COMMANDS_QUEUEANDSELECT:
+        elif command.group("command") in constants.COMMANDS_QUEUEANDSELECT:
             self._syncplayClient.playlist.switchToNewPlaylistItem = True
-            self.executeCommand("{} {}".format(constants.COMMANDS_QUEUE[0], command.group('parameter')))
-        elif command.group('command') in constants.COMMANDS_PLAYLIST:
+            self.executeCommand(
+                "{} {}".format(constants.COMMANDS_QUEUE[0], command.group("parameter"))
+            )
+        elif command.group("command") in constants.COMMANDS_PLAYLIST:
             playlist = self._syncplayClient.playlist
-            playlist_elements = ["\t{}: {}".format(i+1, el) for i, el in enumerate(playlist._playlist)]
+            playlist_elements = [
+                "\t{}: {}".format(i + 1, el) for i, el in enumerate(playlist._playlist)
+            ]
 
             if playlist_elements:
                 i = playlist._playlistIndex
@@ -210,37 +230,39 @@ class ConsoleUI(threading.Thread):
                 self.showMessage("\n".join(playlist_elements), True)
             else:
                 self.showMessage(getMessage("playlist-empty-error"), True)
-        elif command.group('command') in constants.COMMANDS_SELECT:
+        elif command.group("command") in constants.COMMANDS_SELECT:
             try:
-                index = int(command.group('parameter').strip()) - 1
+                index = int(command.group("parameter").strip()) - 1
 
                 if index < 0 or index >= len(self._syncplayClient.playlist._playlist):
                     raise TypeError("Invalid playlist index")
-                self._syncplayClient.playlist.changeToPlaylistIndex(index, resetPosition=True)
+                self._syncplayClient.playlist.changeToPlaylistIndex(
+                    index, resetPosition=True
+                )
                 self._syncplayClient.rewindFile()
 
             except (TypeError, AttributeError):
                 self.showErrorMessage(getMessage("playlist-invalid-index-error"))
-        elif command.group('command') in constants.COMMANDS_DELETE:
+        elif command.group("command") in constants.COMMANDS_DELETE:
             try:
-                index = int(command.group('parameter').strip()) - 1
+                index = int(command.group("parameter").strip()) - 1
                 self._syncplayClient.playlist.deleteAtIndex(index)
 
             except (TypeError, AttributeError):
                 self.showErrorMessage(getMessage("playlist-invalid-index-error"))
-        elif command.group('command') in constants.COMMANDS_NEXT:
+        elif command.group("command") in constants.COMMANDS_NEXT:
             self._syncplayClient.playlist.loadNextFileInPlaylist()
 
-        elif command.group('command') in constants.COMMANDS_SETREADY:
+        elif command.group("command") in constants.COMMANDS_SETREADY:
             try:
-                username = command.group('parameter')
+                username = command.group("parameter")
                 self._syncplayClient.setOthersReadiness(username, True)
             except:
                 pass
 
-        elif command.group('command') in constants.COMMANDS_SETNOTREADY:
+        elif command.group("command") in constants.COMMANDS_SETNOTREADY:
             try:
-                username = command.group('parameter')
+                username = command.group("parameter")
                 self._syncplayClient.setOthersReadiness(username, False)
             except:
                 pass
@@ -248,7 +270,7 @@ class ConsoleUI(threading.Thread):
         else:
             if self._tryAdvancedCommands(data):
                 return
-            if command.group('command') not in constants.COMMANDS_HELP:
+            if command.group("command") not in constants.COMMANDS_HELP:
                 self.showMessage(getMessage("unrecognized-command-notification"))
             self.showMessage(getMessage("commandlist-notification"), True)
             self.showMessage(getMessage("commandlist-notification/room"), True)
@@ -263,13 +285,20 @@ class ConsoleUI(threading.Thread):
             self.showMessage(getMessage("commandlist-notification/auth"), True)
             self.showMessage(getMessage("commandlist-notification/chat"), True)
             self.showMessage(getMessage("commandList-notification/queue"), True)
-            self.showMessage(getMessage("commandList-notification/queueandselect"), True)
+            self.showMessage(
+                getMessage("commandList-notification/queueandselect"), True
+            )
             self.showMessage(getMessage("commandList-notification/playlist"), True)
             self.showMessage(getMessage("commandList-notification/select"), True)
             self.showMessage(getMessage("commandList-notification/next"), True)
             self.showMessage(getMessage("commandList-notification/delete"), True)
-            self.showMessage(getMessage("syncplay-version-notification").format(syncplay.version), True)
-            self.showMessage(getMessage("more-info-notification").format(syncplay.projectURL), True)
+            self.showMessage(
+                getMessage("syncplay-version-notification").format(syncplay.version),
+                True,
+            )
+            self.showMessage(
+                getMessage("more-info-notification").format(syncplay.projectURL), True
+            )
 
     def getUserlist(self):
         self._syncplayClient.getUserList()

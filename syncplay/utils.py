@@ -37,7 +37,9 @@ def isMacOS():
 
 
 def isBSD():
-    return constants.OS_BSD in sys.platform or sys.platform.startswith(constants.OS_DRAGONFLY)
+    return constants.OS_BSD in sys.platform or sys.platform.startswith(
+        constants.OS_DRAGONFLY
+    )
 
 
 def isWindowsConsole():
@@ -80,6 +82,7 @@ def retry(ExceptionToCheck, tries=4, delay=3, backoff=2, logger=None):
     :param logger: logger to use. If None, print
     :type logger: logging.Logger instance
     """
+
     def deco_retry(f):
         def f_retry(*args, **kwargs):
             mtries, mdelay = tries, delay
@@ -99,7 +102,9 @@ def retry(ExceptionToCheck, tries=4, delay=3, backoff=2, logger=None):
             if try_one_last_time:
                 return f(*args, **kwargs)
             return
+
         return f_retry  # true decorator
+
     return deco_retry
 
 
@@ -112,7 +117,7 @@ def parseTime(timeStr):
         return
     parts = parts.groupdict()
     time_params = {}
-    for (name, param) in parts.items():
+    for name, param in parts.items():
         if param:
             if name == "miliseconds":
                 time_params["microseconds"] = int(param) * 1000
@@ -124,9 +129,9 @@ def parseTime(timeStr):
 def formatTime(timeInSeconds, weeksAsTitles=True):
     if timeInSeconds < 0:
         timeInSeconds = -timeInSeconds
-        sign = '-'
+        sign = "-"
     else:
-        sign = ''
+        sign = ""
     timeInSeconds = round(timeInSeconds)
     weeks = timeInSeconds // 604800
     if weeksAsTitles and weeks > 0:
@@ -139,13 +144,19 @@ def formatTime(timeInSeconds, weeksAsTitles=True):
     minutes = (timeInSeconds % 3600) // 60
     seconds = timeInSeconds % 60
     if weeks > 0:
-        formattedTime = '{0:}{1:.0f}w, {2:.0f}d, {3:02.0f}:{4:02.0f}:{5:02.0f}'.format(sign, weeks, days, hours, minutes, seconds)
+        formattedTime = "{0:}{1:.0f}w, {2:.0f}d, {3:02.0f}:{4:02.0f}:{5:02.0f}".format(
+            sign, weeks, days, hours, minutes, seconds
+        )
     elif days > 0:
-        formattedTime = '{0:}{1:.0f}d, {2:02.0f}:{3:02.0f}:{4:02.0f}'.format(sign, days, hours, minutes, seconds)
+        formattedTime = "{0:}{1:.0f}d, {2:02.0f}:{3:02.0f}:{4:02.0f}".format(
+            sign, days, hours, minutes, seconds
+        )
     elif hours > 0:
-        formattedTime = '{0:}{1:02.0f}:{2:02.0f}:{3:02.0f}'.format(sign, hours, minutes, seconds)
+        formattedTime = "{0:}{1:02.0f}:{2:02.0f}:{3:02.0f}".format(
+            sign, hours, minutes, seconds
+        )
     else:
-        formattedTime = '{0:}{1:02.0f}:{2:02.0f}'.format(sign, minutes, seconds)
+        formattedTime = "{0:}{1:02.0f}:{2:02.0f}".format(sign, minutes, seconds)
     if title > 0:
         formattedTime = "{0:} (Title {1:.0f})".format(formattedTime, title)
     return formattedTime
@@ -155,7 +166,9 @@ def formatSize(numOfBytes, precise=False):
     if numOfBytes == 0:  # E.g. when file size privacy is enabled
         return "???"
     try:
-        megabytes = int(numOfBytes) / 1048576.0  # Technically this is a mebibyte, but whatever
+        megabytes = (
+            int(numOfBytes) / 1048576.0
+        )  # Technically this is a mebibyte, but whatever
         if precise:
             megabytes = round(megabytes, 1)
         else:
@@ -171,21 +184,25 @@ def isASCII(s):
 
 def findResourcePath(resourceName):
     if resourceName == "syncplay.lua":
-        resourcePath = os.path.join(findWorkingDir(), "resources", "lua", "intf", resourceName)
+        resourcePath = os.path.join(
+            findWorkingDir(), "resources", "lua", "intf", resourceName
+        )
     else:
         resourcePath = os.path.join(findWorkingDir(), "resources", resourceName)
     return resourcePath
 
 
 def findWorkingDir():
-    frozen = getattr(sys, 'frozen', '')
+    frozen = getattr(sys, "frozen", "")
     if not frozen:
         path = os.path.dirname(__file__)
-    elif frozen in ('dll', 'console_exe', 'windows_exe', 'macosx_app'):
-        path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    elif frozen in ("dll", "console_exe", "windows_exe", "macosx_app"):
+        path = os.path.dirname(
+            os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        )
     elif frozen:  # needed for PyInstaller
-        if getattr(sys, '_MEIPASS', '') is not None:
-            path = getattr(sys, '_MEIPASS', '')  # --onefile
+        if getattr(sys, "_MEIPASS", "") is not None:
+            path = getattr(sys, "_MEIPASS", "")  # --onefile
         else:
             path = os.path.dirname(sys.executable)  # --onedir
     else:
@@ -209,30 +226,36 @@ def getDefaultMonospaceFont():
 
 
 def limitedPowerset(s, minLength):
-    return itertools.chain.from_iterable(itertools.combinations(s, r) for r in range(len(s), minLength, -1))
+    return itertools.chain.from_iterable(
+        itertools.combinations(s, r) for r in range(len(s), minLength, -1)
+    )
 
 
 def parseCommandLineString(s):
     arsToReturn = re.findall(constants.ARGUMENT_SPLIT_REGEX, s)
     return arsToReturn
 
+
 def blackholeStdoutForFrozenWindow():
-    if getattr(sys, 'frozen', '') == "windows_exe":
+    if getattr(sys, "frozen", "") == "windows_exe":
+
         class Stderr(object):
             softspace = 0
             _file = None
             _error = None
 
-            def write(self, text, fname='.syncplay.log'):
+            def write(self, text, fname=".syncplay.log"):
                 if self._file is None and self._error is None:
-                    if os.name != 'nt':
-                        path = os.path.join(os.getenv('HOME', '.'), fname)
+                    if os.name != "nt":
+                        path = os.path.join(os.getenv("HOME", "."), fname)
                     else:
-                        path = os.path.join(os.getenv('APPDATA', '.'), fname)
-                    self._file = open(path, 'a', encoding='utf-8')
+                        path = os.path.join(os.getenv("APPDATA", "."), fname)
+                    self._file = open(path, "a", encoding="utf-8")
                     # TODO: Handle errors.
                 if self._file is not None:
-                    if not (text.startswith("<frozen zipimport>") and "UserWarning:" in text):
+                    if not (
+                        text.startswith("<frozen zipimport>") and "UserWarning:" in text
+                    ):
                         self._file.write(text)
                     self._file.flush()
 
@@ -256,6 +279,7 @@ def blackholeStdoutForFrozenWindow():
         del Blackhole
 
     elif isWindowsConsole():
+
         class Blackhole(object):
             softspace = 0
 
@@ -280,7 +304,7 @@ def blackholeStdoutForFrozenWindow():
 
 def truncateText(unicodeText, maxLength):
     try:
-        unicodeText = unicodeText.decode('utf-8')
+        unicodeText = unicodeText.decode("utf-8")
     except:
         pass
 
@@ -293,16 +317,20 @@ def truncateText(unicodeText, maxLength):
 
 def splitText(unicodeText, maxLength):
     try:
-        unicodeText = unicodeText.decode('utf-8')
+        unicodeText = unicodeText.decode("utf-8")
     except:
         pass
     try:
         unicodeText = str(unicodeText.encode("utf-8"), "utf-8", errors="ignore")
-        unicodeArray = [unicodeText[i:i + maxLength] for i in range(0, len(unicodeText), maxLength)]
-        return(unicodeArray)
+        unicodeArray = [
+            unicodeText[i : i + maxLength]
+            for i in range(0, len(unicodeText), maxLength)
+        ]
+        return unicodeArray
     except:
         pass
     return [""]
+
 
 # Relate to file hashing / difference checking:
 
@@ -327,7 +355,9 @@ def stripfilename(filename, stripURL):
 def stripRoomName(RoomName):
     if RoomName:
         try:
-            return re.sub(constants.ROOM_NAME_STRIP_REGEX, r"\g<roomnamebase>", RoomName)
+            return re.sub(
+                constants.ROOM_NAME_STRIP_REGEX, r"\g<roomnamebase>", RoomName
+            )
         except IndexError:
             return RoomName
     else:
@@ -339,7 +369,7 @@ def hashFilename(filename, stripURL=False):
         stripURL = True
     strippedFilename = stripfilename(filename, stripURL)
     try:
-        strippedFilename = strippedFilename.encode('utf-8')
+        strippedFilename = strippedFilename.encode("utf-8")
     except UnicodeDecodeError:
         pass
     filenameHash = hashlib.sha256(strippedFilename).hexdigest()[:12]
@@ -347,7 +377,7 @@ def hashFilename(filename, stripURL=False):
 
 
 def hashFilesize(size):
-    return hashlib.sha256(str(size).encode('utf-8')).hexdigest()[:12]
+    return hashlib.sha256(str(size).encode("utf-8")).hexdigest()[:12]
 
 
 def sameHashed(string1raw, string1hashed, string2raw, string2hashed):
@@ -376,9 +406,17 @@ def sameFilename(filename1, filename2):
     except UnicodeDecodeError:
         pass
     stripURL = True if isURL(filename1) ^ isURL(filename2) else False
-    if filename1 == constants.PRIVACY_HIDDENFILENAME or filename2 == constants.PRIVACY_HIDDENFILENAME:
+    if (
+        filename1 == constants.PRIVACY_HIDDENFILENAME
+        or filename2 == constants.PRIVACY_HIDDENFILENAME
+    ):
         return True
-    elif sameHashed(stripfilename(filename1, stripURL), hashFilename(filename1, stripURL), stripfilename(filename2, stripURL), hashFilename(filename2, stripURL)):
+    elif sameHashed(
+        stripfilename(filename1, stripURL),
+        hashFilename(filename1, stripURL),
+        stripfilename(filename2, stripURL),
+        hashFilename(filename2, stripURL),
+    ):
         return True
     else:
         return False
@@ -387,7 +425,9 @@ def sameFilename(filename1, filename2):
 def sameFilesize(filesize1, filesize2):
     if filesize1 == 0 or filesize2 == 0:
         return True
-    elif sameHashed(filesize1, hashFilesize(filesize1), filesize2, hashFilesize(filesize2)):
+    elif sameHashed(
+        filesize1, hashFilesize(filesize1), filesize2, hashFilesize(filesize2)
+    ):
         return True
     else:
         return False
@@ -396,7 +436,10 @@ def sameFilesize(filesize1, filesize2):
 def sameFileduration(duration1, duration2):
     if not constants.SHOW_DURATION_NOTIFICATION:
         return True
-    elif abs(round(duration1) - round(duration2)) < constants.DIFFERENT_DURATION_THRESHOLD:
+    elif (
+        abs(round(duration1) - round(duration2))
+        < constants.DIFFERENT_DURATION_THRESHOLD
+    ):
         return True
     else:
         return False
@@ -405,6 +448,7 @@ def sameFileduration(duration1, duration2):
 def meetsMinVersion(version, minVersion):
     def versiontotuple(ver):
         return tuple(map(int, ver.split(".")))
+
     return versiontotuple(version) >= versiontotuple(minVersion)
 
 
@@ -469,27 +513,55 @@ def open_system_file_browser(path):
     else:
         subprocess.Popen(["xdg-open", path])
 
+
 def playerPathExists(path):
     if os.path.isfile(path):
         return True
-    elif "mpvnet.exe" in path and os.path.isfile(path.replace("mpvnet.exe","mpvnet.com")):
+    elif "mpvnet.exe" in path and os.path.isfile(
+        path.replace("mpvnet.exe", "mpvnet.com")
+    ):
         return True
     else:
         return False
 
+
 def getListOfPublicServers():
     try:
         import urllib.request, urllib.parse, urllib.error, syncplay, sys
-        params = urllib.parse.urlencode({'version': syncplay.version, 'milestone': syncplay.milestone, 'release_number': syncplay.release_number, 'language': syncplay.messages.messages["CURRENT"]})
+
+        params = urllib.parse.urlencode(
+            {
+                "version": syncplay.version,
+                "milestone": syncplay.milestone,
+                "release_number": syncplay.release_number,
+                "language": syncplay.messages.messages["CURRENT"],
+            }
+        )
         if isMacOS():
             import requests
-            response = requests.get(constants.SYNCPLAY_PUBLIC_SERVER_LIST_URL.format(params))
+
+            response = requests.get(
+                constants.SYNCPLAY_PUBLIC_SERVER_LIST_URL.format(params)
+            )
             response = response.text
         else:
-            f = urllib.request.urlopen(constants.SYNCPLAY_PUBLIC_SERVER_LIST_URL.format(params))
+            f = urllib.request.urlopen(
+                constants.SYNCPLAY_PUBLIC_SERVER_LIST_URL.format(params)
+            )
             response = f.read()
-            response = response.decode('utf-8')
-        response = response.replace("<p>", "").replace("</p>", "").replace("<br />", "").replace("&#8220;", "'").replace("&#8221;", "'").replace(":&#8217;", "'").replace("&#8217;", "'").replace("&#8242;", "'").replace("\n", "").replace("\r", "")  # Fix Wordpress
+            response = response.decode("utf-8")
+        response = (
+            response.replace("<p>", "")
+            .replace("</p>", "")
+            .replace("<br />", "")
+            .replace("&#8220;", "'")
+            .replace("&#8221;", "'")
+            .replace(":&#8217;", "'")
+            .replace("&#8217;", "'")
+            .replace("&#8242;", "'")
+            .replace("\n", "")
+            .replace("\r", "")
+        )  # Fix Wordpress
         response = ast.literal_eval(response)
 
         if response:
@@ -523,20 +595,27 @@ class RoomPasswordProvider(object):
         if not match:
             raise NotControlledRoom()
         roomHash = match.group(2)
-        computedHash = RoomPasswordProvider._computeRoomHash(match.group(1), password, salt)
+        computedHash = RoomPasswordProvider._computeRoomHash(
+            match.group(1), password, salt
+        )
         return roomHash == computedHash
 
     @staticmethod
     def getControlledRoomName(roomName, password, salt):
-        return "+" + roomName + ":" + RoomPasswordProvider._computeRoomHash(roomName, password, salt)
+        return (
+            "+"
+            + roomName
+            + ":"
+            + RoomPasswordProvider._computeRoomHash(roomName, password, salt)
+        )
 
     @staticmethod
     def _computeRoomHash(roomName, password, salt):
-        roomName = roomName.encode('utf8')
-        salt = salt.encode('utf8')
-        password = password.encode('utf8')
-        salt = hashlib.sha256(salt).hexdigest().encode('utf8')
-        provisionalHash = hashlib.sha256(roomName + salt).hexdigest().encode('utf8')
+        roomName = roomName.encode("utf8")
+        salt = salt.encode("utf8")
+        password = password.encode("utf8")
+        salt = hashlib.sha256(salt).hexdigest().encode("utf8")
+        provisionalHash = hashlib.sha256(roomName + salt).hexdigest().encode("utf8")
         return hashlib.sha1(provisionalHash + salt + password).hexdigest()[:12].upper()
 
 
@@ -546,24 +625,22 @@ class RandomStringGenerator(object):
         parts = (
             RandomStringGenerator._get_random_letters(2),
             RandomStringGenerator._get_random_numbers(3),
-            RandomStringGenerator._get_random_numbers(3)
+            RandomStringGenerator._get_random_numbers(3),
         )
         return "{}-{}-{}".format(*parts)
 
     @staticmethod
     def generate_server_salt():
-        parts = (
-            RandomStringGenerator._get_random_letters(10),
-        )
+        parts = (RandomStringGenerator._get_random_letters(10),)
         return "{}".format(*parts)
 
     @staticmethod
     def _get_random_letters(quantity):
-        return ''.join(random.choice(string.ascii_uppercase) for _ in range(quantity))
+        return "".join(random.choice(string.ascii_uppercase) for _ in range(quantity))
 
     @staticmethod
     def _get_random_numbers(quantity):
-        return ''.join(random.choice(string.digits) for _ in range(quantity))
+        return "".join(random.choice(string.digits) for _ in range(quantity))
 
 
 class NotControlledRoom(Exception):

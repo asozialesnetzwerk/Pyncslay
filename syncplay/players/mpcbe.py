@@ -1,4 +1,3 @@
-
 import os.path
 
 from syncplay import constants
@@ -9,9 +8,11 @@ from syncplay.players.mpc import MPCHCAPIPlayer
 class MpcBePlayer(MPCHCAPIPlayer):
     @staticmethod
     def run(client, playerPath, filePath, args):
-        args.extend(['/open', '/new'])
+        args.extend(["/open", "/new"])
         mpc = MpcBePlayer(client)
-        mpc._mpcApi.callbacks.onConnected = lambda: mpc.initPlayer(filePath if filePath else None)
+        mpc._mpcApi.callbacks.onConnected = lambda: mpc.initPlayer(
+            filePath if filePath else None
+        )
         mpc._mpcApi.startMpc(MpcBePlayer.getExpandedPath(playerPath), args)
         client.initPlayer(mpc)
         return mpc
@@ -34,9 +35,9 @@ class MpcBePlayer(MPCHCAPIPlayer):
     def getExpandedPath(path):
         if os.path.isfile(path):
             if (
-                path.lower().endswith('mpc-be.exe'.lower()) or
-                path.lower().endswith('mpc-be64.exe'.lower()) or
-                path.lower().endswith('mpc-beportable.exe'.lower())
+                path.lower().endswith("mpc-be.exe".lower())
+                or path.lower().endswith("mpc-be64.exe".lower())
+                or path.lower().endswith("mpc-beportable.exe".lower())
             ):
                 return path
         if os.path.isfile(path + "mpc-be.exe"):
@@ -60,4 +61,6 @@ class MpcBePlayer(MPCHCAPIPlayer):
 
     @staticmethod
     def getMinVersionErrorMessage():
-        return getMessage("mpc-be-version-insufficient-error").format(constants.MPC_BE_MIN_VER)
+        return getMessage("mpc-be-version-insufficient-error").format(
+            constants.MPC_BE_MIN_VER
+        )

@@ -8,7 +8,7 @@ import random
 import queue
 import logging
 
-log = logging.getLogger('mpv-jsonipc')
+log = logging.getLogger("mpv-jsonipc")
 
 if os.name == "nt":
     import _winapi
@@ -18,22 +18,89 @@ TIMEOUT = 120
 
 # Older MPV versions do not allow us to dynamically retrieve the command list.
 FALLBACK_COMMAND_LIST = [
-    'ignore', 'seek', 'revert-seek', 'quit', 'quit-watch-later', 'stop', 'frame-step', 'frame-back-step',
-    'playlist-next', 'playlist-prev', 'playlist-shuffle', 'playlist-unshuffle', 'sub-step', 'sub-seek',
-    'print-text', 'show-text', 'expand-text', 'expand-path', 'show-progress', 'sub-add', 'audio-add',
-    'video-add', 'sub-remove', 'audio-remove', 'video-remove', 'sub-reload', 'audio-reload', 'video-reload',
-    'rescan-external-files', 'screenshot', 'screenshot-to-file', 'screenshot-raw', 'loadfile', 'loadlist',
-    'playlist-clear', 'playlist-remove', 'playlist-move', 'run', 'subprocess', 'set', 'change-list', 'add',
-    'cycle', 'multiply', 'cycle-values', 'enable-section', 'disable-section', 'define-section', 'ab-loop',
-    'drop-buffers', 'af', 'vf', 'af-command', 'vf-command', 'ao-reload', 'script-binding', 'script-message',
-    'script-message-to', 'overlay-add', 'overlay-remove', 'osd-overlay', 'write-watch-later-config',
-    'hook-add', 'hook-ack', 'mouse', 'keybind', 'keypress', 'keydown', 'keyup', 'apply-profile',
-    'load-script', 'dump-cache', 'ab-loop-dump-cache', 'ab-loop-align-cache']
+    "ignore",
+    "seek",
+    "revert-seek",
+    "quit",
+    "quit-watch-later",
+    "stop",
+    "frame-step",
+    "frame-back-step",
+    "playlist-next",
+    "playlist-prev",
+    "playlist-shuffle",
+    "playlist-unshuffle",
+    "sub-step",
+    "sub-seek",
+    "print-text",
+    "show-text",
+    "expand-text",
+    "expand-path",
+    "show-progress",
+    "sub-add",
+    "audio-add",
+    "video-add",
+    "sub-remove",
+    "audio-remove",
+    "video-remove",
+    "sub-reload",
+    "audio-reload",
+    "video-reload",
+    "rescan-external-files",
+    "screenshot",
+    "screenshot-to-file",
+    "screenshot-raw",
+    "loadfile",
+    "loadlist",
+    "playlist-clear",
+    "playlist-remove",
+    "playlist-move",
+    "run",
+    "subprocess",
+    "set",
+    "change-list",
+    "add",
+    "cycle",
+    "multiply",
+    "cycle-values",
+    "enable-section",
+    "disable-section",
+    "define-section",
+    "ab-loop",
+    "drop-buffers",
+    "af",
+    "vf",
+    "af-command",
+    "vf-command",
+    "ao-reload",
+    "script-binding",
+    "script-message",
+    "script-message-to",
+    "overlay-add",
+    "overlay-remove",
+    "osd-overlay",
+    "write-watch-later-config",
+    "hook-add",
+    "hook-ack",
+    "mouse",
+    "keybind",
+    "keypress",
+    "keydown",
+    "keyup",
+    "apply-profile",
+    "load-script",
+    "dump-cache",
+    "ab-loop-dump-cache",
+    "ab-loop-align-cache",
+]
+
 
 class MPVError(Exception):
     """An error originating from MPV or due to a problem with MPV."""
+
     def __init__(self, *args, **kwargs):
         super(MPVError, self).__init__(*args, **kwargs)
+
 
 class WindowsSocket(threading.Thread):
     """
@@ -42,6 +109,7 @@ class WindowsSocket(threading.Thread):
     Data is automatically encoded and decoded as JSON. The callback
     function will be called for each inbound message.
     """
+
     def __init__(self, ipc_socket, callback=None, quit_callback=None):
         """Create the wrapper.
 
@@ -54,13 +122,18 @@ class WindowsSocket(threading.Thread):
         self.quit_callback = quit_callback
 
         access = _winapi.GENERIC_READ | _winapi.GENERIC_WRITE
-        limit = 5 # Connection may fail at first. Try 5 times.
+        limit = 5  # Connection may fail at first. Try 5 times.
         for _ in range(limit):
             try:
                 pipe_handle = _winapi.CreateFile(
-                    ipc_socket, access, 0, _winapi.NULL, _winapi.OPEN_EXISTING,
-                    _winapi.FILE_FLAG_OVERLAPPED, _winapi.NULL
-                    )
+                    ipc_socket,
+                    access,
+                    0,
+                    _winapi.NULL,
+                    _winapi.OPEN_EXISTING,
+                    _winapi.FILE_FLAG_OVERLAPPED,
+                    _winapi.NULL,
+                )
                 break
             except OSError:
                 time.sleep(1)
@@ -83,30 +156,30 @@ class WindowsSocket(threading.Thread):
     def send(self, data):
         """Send *data* to the pipe, encoded as JSON."""
         try:
-            self.socket.send_bytes(json.dumps(data).encode('utf-8') + b'\n')
+            self.socket.send_bytes(json.dumps(data).encode("utf-8") + b"\n")
         except OSError as ex:
             raise ex
 
     def run(self):
         """Process pipe events. Do not run this directly. Use *start*."""
-        data = b''
+        data = b""
         try:
             while True:
                 current_data = self.socket.recv_bytes(2048)
-                if current_data == b'':
+                if current_data == b"":
                     break
 
                 data += current_data
                 if data[-1] != 10:
                     continue
 
-                data = data.decode('utf-8', 'ignore').encode('utf-8')
-                for item in data.split(b'\n'):
-                    if item == b'':
+                data = data.decode("utf-8", "ignore").encode("utf-8")
+                for item in data.split(b"\n"):
+                    if item == b"":
                         continue
                     json_data = json.loads(item)
                     self.callback(json_data)
-                data = b''
+                data = b""
         except EOFError:
             if self.quit_callback:
                 self.quit_callback()
@@ -115,6 +188,7 @@ class WindowsSocket(threading.Thread):
             if self.quit_callback:
                 self.quit_callback()
 
+
 class UnixSocket(threading.Thread):
     """
     Wraps a Unix/Linux socket in a high-level interface. (Internal)
@@ -122,6 +196,7 @@ class UnixSocket(threading.Thread):
     Data is automatically encoded and decoded as JSON. The callback
     function will be called for each inbound message.
     """
+
     def __init__(self, ipc_socket, callback=None, quit_callback=None):
         """Create the wrapper.
 
@@ -148,7 +223,7 @@ class UnixSocket(threading.Thread):
                 self.socket.close()
                 self.socket = None
             except OSError:
-                pass # Ignore socket close failure.
+                pass  # Ignore socket close failure.
         if join:
             self.join()
 
@@ -156,37 +231,39 @@ class UnixSocket(threading.Thread):
         """Send *data* to the socket, encoded as JSON."""
         if self.socket is None:
             raise BrokenPipeError("socket is closed")
-        self.socket.send(json.dumps(data).encode('utf-8') + b'\n')
+        self.socket.send(json.dumps(data).encode("utf-8") + b"\n")
 
     def run(self):
         """Process socket events. Do not run this directly. Use *start*."""
-        data = b''
+        data = b""
         try:
             while True:
                 current_data = self.socket.recv(1024)
-                if current_data == b'':
+                if current_data == b"":
                     break
 
                 data += current_data
                 if data[-1] != 10:
                     continue
 
-                data = data.decode('utf-8', 'ignore').encode('utf-8')
-                for item in data.split(b'\n'):
-                    if item == b'':
+                data = data.decode("utf-8", "ignore").encode("utf-8")
+                for item in data.split(b"\n"):
+                    if item == b"":
                         continue
                     json_data = json.loads(item)
                     self.callback(json_data)
-                data = b''
+                data = b""
         except Exception as ex:
             log.error("Socket connection died.", exc_info=1)
         if self.quit_callback:
             self.quit_callback()
 
+
 class MPVProcess:
     """
     Manages an MPV process, ensuring the socket or pipe is available. (Internal)
     """
+
     def __init__(self, ipc_socket, mpv_location=None, env=None, **kwargs):
         """
         Create and start the MPV process. Will block until socket/pipe is available.
@@ -197,16 +274,16 @@ class MPVProcess:
         All other arguments are forwarded to MPV as command-line arguments.
         """
         if mpv_location is None:
-            if os.name == 'nt':
+            if os.name == "nt":
                 mpv_location = "mpv.exe"
             else:
                 mpv_location = "mpv"
 
         log.debug("Staring MPV from {0}.".format(mpv_location))
-        if os.name == 'nt':
+        if os.name == "nt":
             ipc_socket = "\\\\.\\pipe\\" + ipc_socket
 
-        if os.name != 'nt' and os.path.exists(ipc_socket):
+        if os.name != "nt" and os.path.exists(ipc_socket):
             os.remove(ipc_socket)
 
         log.debug("Using IPC socket {0} for MPV.".format(ipc_socket))
@@ -218,7 +295,7 @@ class MPVProcess:
     def _start_process(self, ipc_socket, args, env):
         self.process = subprocess.Popen(args, env=env)
         ipc_exists = False
-        for _ in range(100): # Give MPV 10 seconds to start.
+        for _ in range(100):  # Give MPV 10 seconds to start.
             time.sleep(0.1)
             self.process.poll()
             if os.path.exists(ipc_socket):
@@ -226,7 +303,9 @@ class MPVProcess:
                 log.debug("Found MPV socket.")
                 break
             if self.process.returncode is not None:
-                log.error("MPV failed with returncode {0}.".format(self.process.returncode))
+                log.error(
+                    "MPV failed with returncode {0}.".format(self.process.returncode)
+                )
                 break
         else:
             self.process.terminate()
@@ -246,8 +325,10 @@ class MPVProcess:
         self._set_default(kwargs, "input_ipc_server", self.ipc_socket)
         self._set_default(kwargs, "input_terminal", False)
         self._set_default(kwargs, "terminal", False)
-        args.extend("--{0}={1}".format(v[0].replace("_", "-"), self._mpv_fmt(v[1]))
-                    for v in kwargs.items())
+        args.extend(
+            "--{0}={1}".format(v[0].replace("_", "-"), self._mpv_fmt(v[1]))
+            for v in kwargs.items()
+        )
         return args
 
     def _mpv_fmt(self, data):
@@ -261,13 +342,15 @@ class MPVProcess:
     def stop(self):
         """Terminate the process."""
         self.process.terminate()
-        if os.name != 'nt' and os.path.exists(self.ipc_socket):
+        if os.name != "nt" and os.path.exists(self.ipc_socket):
             os.remove(self.ipc_socket)
+
 
 class MPVInter:
     """
     Low-level interface to MPV. Does NOT manage an mpv process. (Internal)
     """
+
     def __init__(self, ipc_socket, callback=None, quit_callback=None):
         """Create the wrapper.
 
@@ -276,7 +359,7 @@ class MPVInter:
         *quit_callback* is called when the socket connection to MPV dies.
         """
         Socket = UnixSocket
-        if os.name == 'nt':
+        if os.name == "nt":
             Socket = WindowsSocket
 
         self.callback = callback
@@ -325,7 +408,7 @@ class MPVInter:
         command_list.extend(args)
         try:
             self.socket_lock.acquire()
-            self.socket.send({"command":command_list, "request_id": command_id})
+            self.socket.send({"command": command_list, "request_id": command_id})
         finally:
             self.socket_lock.release()
 
@@ -343,8 +426,10 @@ class MPVInter:
         else:
             raise TimeoutError("No response from MPV.")
 
+
 class EventHandler(threading.Thread):
     """Event handling thread. (Internal)"""
+
     def __init__(self):
         """Create an instance of the thread."""
         self.queue = queue.Queue()
@@ -374,7 +459,10 @@ class EventHandler(threading.Thread):
             try:
                 event[0](*event[1])
             except Exception:
-                log.error("EventHandler caught exception from {0}.".format(event), exc_info=1)
+                log.error(
+                    "EventHandler caught exception from {0}.".format(event), exc_info=1
+                )
+
 
 class MPV:
     """
@@ -386,8 +474,17 @@ class MPV:
     Please note that if you are using a really old MPV version, a fallback command
     list is used. Not all commands may actually work when this fallback is used.
     """
-    def __init__(self, start_mpv=True, ipc_socket=None, mpv_location=None,
-                 log_handler=None, loglevel=None, quit_callback=None, **kwargs):
+
+    def __init__(
+        self,
+        start_mpv=True,
+        ipc_socket=None,
+        mpv_location=None,
+        log_handler=None,
+        loglevel=None,
+        quit_callback=None,
+        **kwargs,
+    ):
         """
         Create the interface to MPV and process instance.
 
@@ -420,13 +517,19 @@ class MPV:
             self._start_mpv(ipc_socket, mpv_location, **kwargs)
 
         self.mpv_inter = MPVInter(ipc_socket, self._callback, self._quit_callback)
-        self.properties = set(x.replace("-", "_") for x in self.command("get_property", "property-list"))
+        self.properties = set(
+            x.replace("-", "_") for x in self.command("get_property", "property-list")
+        )
         try:
-            command_list = [x["name"] for x in self.command("get_property", "command-list")]
+            command_list = [
+                x["name"] for x in self.command("get_property", "command-list")
+            ]
         except MPVError:
             command_list = FALLBACK_COMMAND_LIST
         for command in command_list:
-            object.__setattr__(self, command.replace("-", "_"), self._get_wrapper(command))
+            object.__setattr__(
+                self, command.replace("-", "_"), self._get_wrapper(command)
+            )
 
         self._dir = list(self.properties)
         self._dir.extend(object.__dir__(self))
@@ -438,14 +541,19 @@ class MPV:
 
         if log_handler is not None and loglevel is not None:
             self.command("request_log_messages", loglevel)
+
             @self.on_event("log-message")
             def log_handler_event(data):
-                self.event_handler.put_task(log_handler, data["level"], data["prefix"], data["text"].strip())
+                self.event_handler.put_task(
+                    log_handler, data["level"], data["prefix"], data["text"].strip()
+                )
 
         @self.on_event("property-change")
         def event_handler(data):
             if data.get("id") in self.property_bindings:
-                self.event_handler.put_task(self.property_bindings[data["id"]], data["name"], data.get("data"))
+                self.event_handler.put_task(
+                    self.property_bindings[data["id"]], data["name"], data.get("data")
+                )
 
         @self.on_event("client-message")
         def client_message_handler(data):
@@ -492,9 +600,11 @@ class MPV:
         def my_callback(event_data):
             pass
         """
+
         def wrapper(func):
             self.bind_event(name, func)
             return func
+
         return wrapper
 
     # Added for compatibility.
@@ -510,9 +620,11 @@ class MPV:
         def my_callback():
             pass
         """
+
         def wrapper(func):
             self.bind_key_press(name, func)
             return func
+
         return wrapper
 
     def bind_key_press(self, name, callback):
@@ -532,7 +644,9 @@ class MPV:
         try:
             self.keybind(name, "script-message custom-bind {0}".format(bind_name))
         except MPVError:
-            self.define_section(bind_name, "{0} script-message custom-bind {1}".format(name, bind_name))
+            self.define_section(
+                bind_name, "{0} script-message custom-bind {1}".format(name, bind_name)
+            )
             self.enable_section(bind_name)
 
     def bind_property_observer(self, name, callback):
@@ -570,9 +684,11 @@ class MPV:
         def my_callback(name, data):
             pass
         """
+
         def wrapper(func):
             self.bind_property_observer(name, func)
             return func
+
         return wrapper
 
     def wait_for_property(self, name):
@@ -583,12 +699,14 @@ class MPV:
         """
         event = threading.Event()
         first_event = True
+
         def handler(*_):
             nonlocal first_event
             if first_event == True:
                 first_event = False
             else:
                 event.set()
+
         observer_id = self.bind_property_observer(name, handler)
         event.wait()
         self.unbind_property_observer(observer_id)
@@ -596,6 +714,7 @@ class MPV:
     def _get_wrapper(self, name):
         def wrapper(*args):
             return self.command(name, *args)
+
         return wrapper
 
     def _callback(self, event, data):

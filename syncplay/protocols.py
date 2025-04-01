@@ -11,7 +11,14 @@ from twisted.python.versions import Version
 from zope.interface.declarations import implementer
 
 import syncplay
-from syncplay.constants import PING_MOVING_AVERAGE_WEIGHT, CONTROLLED_ROOMS_MIN_VERSION, USER_READY_MIN_VERSION, SHARED_PLAYLIST_MIN_VERSION, CHAT_MIN_VERSION, UNKNOWN_UI_MODE
+from syncplay.constants import (
+    PING_MOVING_AVERAGE_WEIGHT,
+    CONTROLLED_ROOMS_MIN_VERSION,
+    USER_READY_MIN_VERSION,
+    SHARED_PLAYLIST_MIN_VERSION,
+    CHAT_MIN_VERSION,
+    UNKNOWN_UI_MODE,
+)
 from syncplay.messages import getMessage
 from syncplay.utils import meetsMinVersion
 
@@ -35,11 +42,13 @@ class JSONCommandProtocol(LineReceiver):
             elif command == "TLS":
                 self.handleTLS(message[1])
             else:
-                self.dropWithError(getMessage("unknown-command-server-error").format(message[1]))  # TODO: log, not drop
+                self.dropWithError(
+                    getMessage("unknown-command-server-error").format(message[1])
+                )  # TODO: log, not drop
 
     def lineReceived(self, line):
         try:
-            line = line.decode('utf-8').strip()
+            line = line.decode("utf-8").strip()
         except UnicodeDecodeError:
             self.dropWithError(getMessage("line-decode-server-error"))
             return
@@ -56,7 +65,7 @@ class JSONCommandProtocol(LineReceiver):
 
     def sendMessage(self, dict_):
         line = json.dumps(dict_)
-        self.sendLine(line.encode('utf-8'))
+        self.sendLine(line.encode("utf-8"))
         self.showDebugMessage("client/server >> {}".format(line))
 
     def drop(self):
@@ -89,7 +98,9 @@ class SyncClientProtocol(JSONCommandProtocol):
                 self.sendTLS({"startTLS": "send"})
                 self._client.ui.showMessage(getMessage("startTLS-initiated"))
             else:
-                self._client.ui.showErrorMessage(getMessage("startTLS-not-supported-server"))
+                self._client.ui.showErrorMessage(
+                    getMessage("startTLS-not-supported-server")
+                )
                 self.sendHello()
         else:
             self._client.ui.showMessage(getMessage("startTLS-not-supported-client"))
@@ -104,7 +115,9 @@ class SyncClientProtocol(JSONCommandProtocol):
             elif "certificate verify failed" in str(reason.value):
                 self.dropWithError(getMessage("startTLS-server-certificate-invalid"))
             elif "mismatched_id=DNS_ID" in str(reason.value):
-                self.dropWithError(getMessage("startTLS-server-certificate-invalid-DNS-ID"))
+                self.dropWithError(
+                    getMessage("startTLS-server-certificate-invalid-DNS-ID")
+                )
             elif reason:
                 try:
                     self._client.ui.showErrorMessage(str(type(reason)))
@@ -127,13 +140,17 @@ class SyncClientProtocol(JSONCommandProtocol):
         username = hello["username"] if "username" in hello else None
         roomName = hello["room"]["name"] if "room" in hello else None
         version = hello["version"] if "version" in hello else None
-        version = hello["realversion"] if "realversion" in hello else version  # Used for 1.2.X compatibility
+        version = (
+            hello["realversion"] if "realversion" in hello else version
+        )  # Used for 1.2.X compatibility
         motd = hello["motd"] if "motd" in hello else None
         features = hello["features"] if "features" in hello else None
         return username, roomName, version, motd, features
 
     def handleHello(self, hello):
-        username, roomName, version, motd, featureList = self._extractHelloArguments(hello)
+        username, roomName, version, motd, featureList = self._extractHelloArguments(
+            hello
+        )
         if not username or not roomName or not version:
             self.dropWithError(getMessage("hello-server-error").format(hello))
         else:
@@ -145,14 +162,20 @@ class SyncClientProtocol(JSONCommandProtocol):
                 motd += "\n\n"
             motd += getMessage("persistent-rooms-notice")
         if motd:
-            self._client.ui.showMessage(motd, noPlayer=True, noTimestamp=True, isMotd=True)
+            self._client.ui.showMessage(
+                motd, noPlayer=True, noTimestamp=True, isMotd=True
+            )
         self._client.ui.showMessage(getMessage("connected-successful-notification"))
         self._client.connected()
         self._client.sendFile()
         self._client.setServerVersion(version, featureList)
 
     def persistentRoomWarning(self, serverFeatures):
-        return serverFeatures["persistentRooms"] if "persistentRooms" in serverFeatures else False
+        return (
+            serverFeatures["persistentRooms"]
+            if "persistentRooms" in serverFeatures
+            else False
+        )
 
     def sendHello(self):
         hello = {}
@@ -183,37 +206,47 @@ class SyncClientProtocol(JSONCommandProtocol):
                 self._client.userlist.modUser(username, room, file_)
 
     def handleSet(self, settings):
-        for (command, values) in settings.items():
+        for command, values in settings.items():
             if command == "room":
                 roomName = values["name"] if "name" in values else None
                 self._client.setRoom(roomName)
             elif command == "user":
                 self._SetUser(values)
             elif command == "controllerAuth":
-                if values['success']:
-                    self._client.controllerIdentificationSuccess(values["user"], values["room"])
+                if values["success"]:
+                    self._client.controllerIdentificationSuccess(
+                        values["user"], values["room"]
+                    )
                 else:
-                    self._client.controllerIdentificationError(values["user"], values["room"])
+                    self._client.controllerIdentificationError(
+                        values["user"], values["room"]
+                    )
             elif command == "newControlledRoom":
-                controlPassword = values['password']
-                roomName = values['roomName']
+                controlPassword = values["password"]
+                roomName = values["roomName"]
                 self._client.controlledRoomCreated(roomName, controlPassword)
             elif command == "ready":
                 user, isReady = values["username"], values["isReady"]
-                manuallyInitiated = values["manuallyInitiated"] if "manuallyInitiated" in values else True
+                manuallyInitiated = (
+                    values["manuallyInitiated"]
+                    if "manuallyInitiated" in values
+                    else True
+                )
                 setBy = values["setBy"] if "setBy" in values else None
                 self._client.setReady(user, isReady, manuallyInitiated, setBy)
             elif command == "playlistIndex":
-                user = values['user']
+                user = values["user"]
                 resetPosition = True
                 if not self.hadFirstPlaylistIndex:
                     self.hadFirstPlaylistIndex = True
                     resetPosition = False
-                self._client.playlist.changeToPlaylistIndex(values['index'], user, resetPosition=resetPosition)
+                self._client.playlist.changeToPlaylistIndex(
+                    values["index"], user, resetPosition=resetPosition
+                )
             elif command == "playlistChange":
-                self._client.playlist.changePlaylist(values['files'], values['user'])
+                self._client.playlist.changePlaylist(values["files"], values["user"])
             elif command == "features":
-                self._client.setUserFeatures(values["username"], values['features'])
+                self._client.setUserFeatures(values["username"], values["features"])
 
     def sendFeaturesUpdate(self, features):
         self.sendSet({"features": features})
@@ -243,20 +276,36 @@ class SyncClientProtocol(JSONCommandProtocol):
             roomName = room[0]
             for user in room[1].items():
                 userName = user[0]
-                file_ = user[1]['file'] if user[1]['file'] != {} else None
-                isController = user[1]['controller'] if 'controller' in user[1] else False
-                isReady = user[1]['isReady'] if 'isReady' in user[1] else None
-                features = user[1]['features'] if 'features' in user[1] else None
-                self._client.userlist.addUser(userName, roomName, file_, noMessage=True, isController=isController, isReady=isReady, features=features)
+                file_ = user[1]["file"] if user[1]["file"] != {} else None
+                isController = (
+                    user[1]["controller"] if "controller" in user[1] else False
+                )
+                isReady = user[1]["isReady"] if "isReady" in user[1] else None
+                features = user[1]["features"] if "features" in user[1] else None
+                self._client.userlist.addUser(
+                    userName,
+                    roomName,
+                    file_,
+                    noMessage=True,
+                    isController=isController,
+                    isReady=isReady,
+                    features=features,
+                )
         self._client.userlist.showUserList()
 
     def sendList(self):
         self.sendMessage({"List": None})
 
     def _extractStatePlaystateArguments(self, state):
-        position = state["playstate"]["position"] if "position" in state["playstate"] else 0
-        paused = state["playstate"]["paused"] if "paused" in state["playstate"] else None
-        doSeek = state["playstate"]["doSeek"] if "doSeek" in state["playstate"] else None
+        position = (
+            state["playstate"]["position"] if "position" in state["playstate"] else 0
+        )
+        paused = (
+            state["playstate"]["paused"] if "paused" in state["playstate"] else None
+        )
+        doSeek = (
+            state["playstate"]["doSeek"] if "doSeek" in state["playstate"] else None
+        )
         setBy = state["playstate"]["setBy"] if "setBy" in state["playstate"] else None
         return position, paused, doSeek, setBy
 
@@ -281,21 +330,31 @@ class SyncClientProtocol(JSONCommandProtocol):
                 self.serverIgnoringOnTheFly = ignore["server"]
                 self.clientIgnoringOnTheFly = 0
             elif "client" in ignore:
-                if(ignore['client']) == self.clientIgnoringOnTheFly:
+                if (ignore["client"]) == self.clientIgnoringOnTheFly:
                     self.clientIgnoringOnTheFly = 0
         if "playstate" in state:
-            position, paused, doSeek, setBy = self._extractStatePlaystateArguments(state)
+            position, paused, doSeek, setBy = self._extractStatePlaystateArguments(
+                state
+            )
         if "ping" in state:
             messageAge, latencyCalculation = self._handleStatePing(state)
-        if position is not None and paused is not None and not self.clientIgnoringOnTheFly:
+        if (
+            position is not None
+            and paused is not None
+            and not self.clientIgnoringOnTheFly
+        ):
             self._client.updateGlobalState(position, paused, doSeek, setBy, messageAge)
         position, paused, doSeek, stateChange = self._client.getLocalState()
         self.sendState(position, paused, doSeek, latencyCalculation, stateChange)
 
-    def sendState(self, position, paused, doSeek, latencyCalculation, stateChange=False):
+    def sendState(
+        self, position, paused, doSeek, latencyCalculation, stateChange=False
+    ):
         state = {}
         positionAndPausedIsSet = position is not None and paused is not None
-        clientIgnoreIsNotSet = self.clientIgnoringOnTheFly == 0 or self.serverIgnoringOnTheFly != 0
+        clientIgnoreIsNotSet = (
+            self.clientIgnoringOnTheFly == 0 or self.serverIgnoringOnTheFly != 0
+        )
         if clientIgnoreIsNotSet and positionAndPausedIsSet:
             state["playstate"] = {}
             state["playstate"]["position"] = position
@@ -319,48 +378,34 @@ class SyncClientProtocol(JSONCommandProtocol):
         self.sendMessage({"State": state})
 
     def requestControlledRoom(self, room, password):
-        self.sendSet({
-            "controllerAuth": {
-                "room": room,
-                "password": password
-            }
-        })
+        self.sendSet({"controllerAuth": {"room": room, "password": password}})
 
     def handleChat(self, message):
-        username = message['username']
-        userMessage = message['message']
+        username = message["username"]
+        userMessage = message["message"]
         self._client.ui.showChatMessage(username, userMessage)
 
     def setReady(self, isReady, manuallyInitiated=True, username=None):
         if username:
-            self.sendSet({
-                "ready": {
-                    "isReady": isReady,
-                    "manuallyInitiated": manuallyInitiated,
-                    "username": username
+            self.sendSet(
+                {
+                    "ready": {
+                        "isReady": isReady,
+                        "manuallyInitiated": manuallyInitiated,
+                        "username": username,
+                    }
                 }
-            })
+            )
         else:
-            self.sendSet({
-                "ready": {
-                    "isReady": isReady,
-                    "manuallyInitiated": manuallyInitiated
-                }
-            })
+            self.sendSet(
+                {"ready": {"isReady": isReady, "manuallyInitiated": manuallyInitiated}}
+            )
 
     def setPlaylist(self, files):
-        self.sendSet({
-            "playlistChange": {
-                "files": files
-            }
-        })
+        self.sendSet({"playlistChange": {"files": files}})
 
     def setPlaylistIndex(self, index):
-        self.sendSet({
-            "playlistIndex": {
-                "index": index
-            }
-        })
+        self.sendSet({"playlistIndex": {"index": index}})
 
     def handleError(self, error):
         if "startTLS" in error["message"] and not self.logged:
@@ -376,19 +421,28 @@ class SyncClientProtocol(JSONCommandProtocol):
 
     def handleTLS(self, message):
         answer = message["startTLS"] if "startTLS" in message else None
-        if "true" in answer and not self.logged and self._client.protocolFactory.options is not None:
+        if (
+            "true" in answer
+            and not self.logged
+            and self._client.protocolFactory.options is not None
+        ):
             self.transport.startTLS(self._client.protocolFactory.options)
             # To be deleted when the support for Twisted between >=16.4.0 and < 17.1.0 is dropped
-            minTwistedVersion = Version('twisted', 17, 1, 0)
+            minTwistedVersion = Version("twisted", 17, 1, 0)
             if twistedVersion < minTwistedVersion:
-                self._client.protocolFactory.options._ctx.set_info_callback(self.customHandshakeCallback)
+                self._client.protocolFactory.options._ctx.set_info_callback(
+                    self.customHandshakeCallback
+                )
         elif "false" in answer:
-            self._client.ui.showErrorMessage(getMessage("startTLS-not-supported-server"))
+            self._client.ui.showErrorMessage(
+                getMessage("startTLS-not-supported-server")
+            )
             self.sendHello()
 
     def customHandshakeCallback(self, conn, where, ret):
         # To be deleted when the support for Twisted between >=16.4.0 and < 17.1.0 is dropped
         from OpenSSL.SSL import SSL_CB_HANDSHAKE_START, SSL_CB_HANDSHAKE_DONE
+
         if where == SSL_CB_HANDSHAKE_START:
             self._client.ui.showDebugMessage("TLS handshake started")
         if where == SSL_CB_HANDSHAKE_DONE:
@@ -399,24 +453,39 @@ class SyncClientProtocol(JSONCommandProtocol):
         self._serverCertificateTLS = self.transport.getPeerCertificate()
         self._subjectTLS = self._serverCertificateTLS.get_subject().CN
         self._issuerTLS = self._serverCertificateTLS.get_issuer().CN
-        self._expiredTLS =self._serverCertificateTLS.has_expired()
-        self._expireDateTLS = datetime.strptime(self._serverCertificateTLS.get_notAfter().decode('ascii'), '%Y%m%d%H%M%SZ')
+        self._expiredTLS = self._serverCertificateTLS.has_expired()
+        self._expireDateTLS = datetime.strptime(
+            self._serverCertificateTLS.get_notAfter().decode("ascii"), "%Y%m%d%H%M%SZ"
+        )
 
         self._encryptedConnectionTLS = self.transport.protocol._tlsConnection
         self._connVersionNumberTLS = self._encryptedConnectionTLS.get_protocol_version()
-        self._connVersionStringTLS = self._encryptedConnectionTLS.get_protocol_version_name()
+        self._connVersionStringTLS = (
+            self._encryptedConnectionTLS.get_protocol_version_name()
+        )
         self._cipherNameTLS = self._encryptedConnectionTLS.get_cipher_name()
-    
-        if self._connVersionNumberTLS == 771:
-            self._connVersionNumberTLS = '1.2'
-        elif self._connVersionNumberTLS == 772:
-            self._connVersionNumberTLS = '1.3'
 
-        self._client.ui.showMessage(getMessage("startTLS-secure-connection-ok").format(self._connVersionStringTLS))
-        self._client.ui.setSSLMode( True,
-                                    {'subject': self._subjectTLS, 'issuer': self._issuerTLS, 'expires': self._expireDateTLS,
-                                    'protocolString': self._connVersionStringTLS, 'protocolVersion': self._connVersionNumberTLS,
-                                    'cipher': self._cipherNameTLS})
+        if self._connVersionNumberTLS == 771:
+            self._connVersionNumberTLS = "1.2"
+        elif self._connVersionNumberTLS == 772:
+            self._connVersionNumberTLS = "1.3"
+
+        self._client.ui.showMessage(
+            getMessage("startTLS-secure-connection-ok").format(
+                self._connVersionStringTLS
+            )
+        )
+        self._client.ui.setSSLMode(
+            True,
+            {
+                "subject": self._subjectTLS,
+                "issuer": self._issuerTLS,
+                "expires": self._expireDateTLS,
+                "protocolString": self._connVersionStringTLS,
+                "protocolVersion": self._connVersionNumberTLS,
+                "cipher": self._cipherNameTLS,
+            },
+        )
 
         self.sendHello()
 
@@ -435,10 +504,14 @@ class SyncServerProtocol(JSONCommandProtocol):
         self._watcher = None
 
     def __hash__(self):
-        return hash('|'.join((
-            self.transport.getPeer().host,
-            str(id(self)),
-        )))
+        return hash(
+            "|".join(
+                (
+                    self.transport.getPeer().host,
+                    str(id(self)),
+                )
+            )
+        )
 
     def requireLogged(f):  # @NoSelf
         @wraps(f)
@@ -446,13 +519,18 @@ class SyncServerProtocol(JSONCommandProtocol):
             if not self._logged:
                 self.dropWithError(getMessage("not-known-server-error"))
             return f(self, *args, **kwds)
+
         return wrapper
 
     def showDebugMessage(self, line):
         pass
 
     def dropWithError(self, error):
-        print(getMessage("client-drop-server-error").format(self.transport.getPeer().host, error))
+        print(
+            getMessage("client-drop-server-error").format(
+                self.transport.getPeer().host, error
+            )
+        )
         self.sendError(error)
         self.drop()
 
@@ -462,11 +540,17 @@ class SyncServerProtocol(JSONCommandProtocol):
     def getFeatures(self):
         if not self._features:
             self._features = {}
-            self._features["sharedPlaylists"] = meetsMinVersion(self._version, SHARED_PLAYLIST_MIN_VERSION)
+            self._features["sharedPlaylists"] = meetsMinVersion(
+                self._version, SHARED_PLAYLIST_MIN_VERSION
+            )
             self._features["chat"] = meetsMinVersion(self._version, CHAT_MIN_VERSION)
             self._features["featureList"] = False
-            self._features["readiness"] = meetsMinVersion(self._version, USER_READY_MIN_VERSION)
-            self._features["managedRooms"] = meetsMinVersion(self._version, CONTROLLED_ROOMS_MIN_VERSION)
+            self._features["readiness"] = meetsMinVersion(
+                self._version, USER_READY_MIN_VERSION
+            )
+            self._features["managedRooms"] = meetsMinVersion(
+                self._version, CONTROLLED_ROOMS_MIN_VERSION
+            )
             self._features["persistentRooms"] = False
             self._features["uiMode"] = UNKNOWN_UI_MODE
         return self._features
@@ -511,7 +595,9 @@ class SyncServerProtocol(JSONCommandProtocol):
         return True
 
     def handleHello(self, hello):
-        username, serverPassword, roomName, version, features = self._extractHelloArguments(hello)
+        username, serverPassword, roomName, version, features = (
+            self._extractHelloArguments(hello)
+        )
         if not username or not roomName or not version:
             self.dropWithError(getMessage("hello-server-error"))
             return
@@ -526,7 +612,11 @@ class SyncServerProtocol(JSONCommandProtocol):
 
     def persistentRoomWarning(self, clientFeatures, serverFeatures):
         serverPersistentRooms = serverFeatures["persistentRooms"]
-        clientPersistentRooms = clientFeatures["persistentRooms"] if "persistentRooms" in clientFeatures else False
+        clientPersistentRooms = (
+            clientFeatures["persistentRooms"]
+            if "persistentRooms" in clientFeatures
+            else False
+        )
         return serverPersistentRooms and not clientPersistentRooms
 
     @requireLogged
@@ -555,7 +645,9 @@ class SyncServerProtocol(JSONCommandProtocol):
         hello["realversion"] = syncplay.version
         hello["features"] = self._factory.getFeatures()
         hello["motd"] = self._factory.getMotd(userIp, username, room, clientVersion)
-        if self.persistentRoomWarning(clientFeatures=self._features, serverFeatures=hello["features"]):
+        if self.persistentRoomWarning(
+            clientFeatures=self._features, serverFeatures=hello["features"]
+        ):
             if len(hello["motd"]) > 0:
                 hello["motd"] += "\n\n"
             hello["motd"] += getMessage("persistent-rooms-notice")
@@ -575,13 +667,22 @@ class SyncServerProtocol(JSONCommandProtocol):
                 room = set_[1]["room"] if "room" in set_[1] else None
                 self._factory.authRoomController(self._watcher, password, room)
             elif command == "ready":
-                manuallyInitiated = set_[1]['manuallyInitiated'] if "manuallyInitiated" in set_[1] else False
-                username = set_[1]['username'] if "username" in set_[1] else None
-                self._factory.setReady(self._watcher, set_[1]['isReady'], manuallyInitiated=manuallyInitiated, username=username)
+                manuallyInitiated = (
+                    set_[1]["manuallyInitiated"]
+                    if "manuallyInitiated" in set_[1]
+                    else False
+                )
+                username = set_[1]["username"] if "username" in set_[1] else None
+                self._factory.setReady(
+                    self._watcher,
+                    set_[1]["isReady"],
+                    manuallyInitiated=manuallyInitiated,
+                    username=username,
+                )
             elif command == "playlistChange":
-                self._factory.setPlaylist(self._watcher, set_[1]['files'])
+                self._factory.setPlaylist(self._watcher, set_[1]["files"])
             elif command == "playlistIndex":
-                self._factory.setPlaylistIndex(self._watcher, set_[1]['index'])
+                self._factory.setPlaylistIndex(self._watcher, set_[1]["index"])
             elif command == "features":
                 # TODO: Check
                 self._watcher.setFeatures(set_[1])
@@ -590,56 +691,45 @@ class SyncServerProtocol(JSONCommandProtocol):
         self.sendMessage({"Set": setting})
 
     def sendNewControlledRoom(self, roomName, password):
-        self.sendSet({
-            "newControlledRoom": {
-                "password": password,
-                "roomName": roomName
-            }
-        })
+        self.sendSet(
+            {"newControlledRoom": {"password": password, "roomName": roomName}}
+        )
 
     def sendControlledRoomAuthStatus(self, success, username, roomname):
-        self.sendSet({
-            "controllerAuth": {
-                "user": username,
-                "room": roomname,
-                "success": success
-            }
-        })
+        self.sendSet(
+            {"controllerAuth": {"user": username, "room": roomname, "success": success}}
+        )
 
-    def sendSetReady(self, username, isReady, manuallyInitiated=True, setByUsername=None):
+    def sendSetReady(
+        self, username, isReady, manuallyInitiated=True, setByUsername=None
+    ):
         if setByUsername:
-            self.sendSet({
-                "ready": {
-                    "username": username,
-                    "isReady": isReady,
-                    "manuallyInitiated": manuallyInitiated,
-                    "setBy": setByUsername
+            self.sendSet(
+                {
+                    "ready": {
+                        "username": username,
+                        "isReady": isReady,
+                        "manuallyInitiated": manuallyInitiated,
+                        "setBy": setByUsername,
+                    }
                 }
-            })
+            )
         else:
-            self.sendSet({
-                "ready": {
-                    "username": username,
-                    "isReady": isReady,
-                    "manuallyInitiated": manuallyInitiated
+            self.sendSet(
+                {
+                    "ready": {
+                        "username": username,
+                        "isReady": isReady,
+                        "manuallyInitiated": manuallyInitiated,
+                    }
                 }
-            })
+            )
 
     def setPlaylist(self, username, files):
-        self.sendSet({
-            "playlistChange": {
-                "user": username,
-                "files": files
-            }
-        })
+        self.sendSet({"playlistChange": {"user": username, "files": files}})
 
     def setPlaylistIndex(self, username, index):
-        self.sendSet({
-            "playlistIndex": {
-                "user": username,
-                "index": index
-            }
-        })
+        self.sendSet({"playlistIndex": {"user": username, "index": index}})
 
     def sendUserSetting(self, username, room, file_, event):
         room = {"name": room.getName()}
@@ -661,11 +751,11 @@ class SyncServerProtocol(JSONCommandProtocol):
                 "file": watcher.getFile() if watcher.getFile() else {},
                 "controller": watcher.isController(),
                 "isReady": watcher.isReady(),
-                "features": watcher.getFeatures()
+                "features": watcher.getFeatures(),
             }
             userlist[room.getName()][watcher.getName()] = userFile
 
-    def _addDummyUserOnList(self, userlist, dummyRoom,dummyCount):
+    def _addDummyUserOnList(self, userlist, dummyRoom, dummyCount):
         if dummyRoom not in userlist:
             userlist[dummyRoom] = {}
         dummyFile = {
@@ -673,7 +763,7 @@ class SyncServerProtocol(JSONCommandProtocol):
             "file": {},
             "controller": False,
             "isReady": True,
-            "features": []
+            "features": [],
         }
         userlist[dummyRoom][" " * dummyCount] = dummyFile
 
@@ -699,22 +789,24 @@ class SyncServerProtocol(JSONCommandProtocol):
         else:
             processingTime = 0
         playstate = {
-                     "position": position if position else 0,
-                     "paused": paused,
-                     "doSeek": doSeek,
-                     "setBy": setBy.getName() if setBy else None
+            "position": position if position else 0,
+            "paused": paused,
+            "doSeek": doSeek,
+            "setBy": setBy.getName() if setBy else None,
         }
         ping = {
-                "latencyCalculation": self._pingService.newTimestamp(),
-                "serverRtt": self._pingService.getRtt()
-                }
+            "latencyCalculation": self._pingService.newTimestamp(),
+            "serverRtt": self._pingService.getRtt(),
+        }
         if self._clientLatencyCalculation:
-            ping["clientLatencyCalculation"] = self._clientLatencyCalculation + processingTime
+            ping["clientLatencyCalculation"] = (
+                self._clientLatencyCalculation + processingTime
+            )
             self._clientLatencyCalculation = 0
         state = {
-                 "ping": ping,
-                 "playstate": playstate,
-                }
+            "ping": ping,
+            "playstate": playstate,
+        }
         if forced:
             self.serverIgnoringOnTheFly += 1
         if self.serverIgnoringOnTheFly or self.clientIgnoringOnTheFly:
@@ -728,9 +820,15 @@ class SyncServerProtocol(JSONCommandProtocol):
             self.sendMessage({"State": state})
 
     def _extractStatePlaystateArguments(self, state):
-        position = state["playstate"]["position"] if "position" in state["playstate"] else 0
-        paused = state["playstate"]["paused"] if "paused" in state["playstate"] else None
-        doSeek = state["playstate"]["doSeek"] if "doSeek" in state["playstate"] else None
+        position = (
+            state["playstate"]["position"] if "position" in state["playstate"] else 0
+        )
+        paused = (
+            state["playstate"]["paused"] if "paused" in state["playstate"] else None
+        )
+        doSeek = (
+            state["playstate"]["doSeek"] if "doSeek" in state["playstate"] else None
+        )
         return position, paused, doSeek
 
     @requireLogged
@@ -746,13 +844,25 @@ class SyncServerProtocol(JSONCommandProtocol):
         if "playstate" in state:
             position, paused, doSeek = self._extractStatePlaystateArguments(state)
         if "ping" in state:
-            latencyCalculation = state["ping"]["latencyCalculation"] if "latencyCalculation" in state["ping"] else 0
-            clientRtt = state["ping"]["clientRtt"] if "clientRtt" in state["ping"] else 0
-            self._clientLatencyCalculation = state["ping"]["clientLatencyCalculation"] if "clientLatencyCalculation" in state["ping"] else 0
+            latencyCalculation = (
+                state["ping"]["latencyCalculation"]
+                if "latencyCalculation" in state["ping"]
+                else 0
+            )
+            clientRtt = (
+                state["ping"]["clientRtt"] if "clientRtt" in state["ping"] else 0
+            )
+            self._clientLatencyCalculation = (
+                state["ping"]["clientLatencyCalculation"]
+                if "clientLatencyCalculation" in state["ping"]
+                else 0
+            )
             self._clientLatencyCalculationArrivalTime = time.time()
             self._pingService.receiveMessage(latencyCalculation, clientRtt)
         if self.serverIgnoringOnTheFly == 0:
-            self._watcher.updateState(position, paused, doSeek, self._pingService.getLastForwardDelay())
+            self._watcher.updateState(
+                position, paused, doSeek, self._pingService.getLastForwardDelay()
+            )
 
     def handleError(self, error):
         self.dropWithError(error["message"])  # TODO: more processing and fallbacking
@@ -768,7 +878,10 @@ class SyncServerProtocol(JSONCommandProtocol):
         if "send" in inquiry:
             if not self.isLogged() and self._factory.serverAcceptsTLS:
                 lastEditCertTime = self._factory.checkLastEditCertTime()
-                if lastEditCertTime is not None and lastEditCertTime != self._factory.lastEditCertTime:
+                if (
+                    lastEditCertTime is not None
+                    and lastEditCertTime != self._factory.lastEditCertTime
+                ):
                     self._factory.updateTLSContextFactory()
                 if self._factory.options is not None:
                     self.sendTLS({"startTLS": "true"})
@@ -797,7 +910,9 @@ class PingService(object):
             return
         if not self._avrRtt:
             self._avrRtt = self._rtt
-        self._avrRtt = self._avrRtt * PING_MOVING_AVERAGE_WEIGHT + self._rtt * (1 - PING_MOVING_AVERAGE_WEIGHT)
+        self._avrRtt = self._avrRtt * PING_MOVING_AVERAGE_WEIGHT + self._rtt * (
+            1 - PING_MOVING_AVERAGE_WEIGHT
+        )
         if senderRtt < self._rtt:
             self._fd = self._avrRtt / 2 + (self._rtt - senderRtt)
         else:

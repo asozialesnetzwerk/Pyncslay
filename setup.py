@@ -5,36 +5,41 @@ import setuptools
 
 from syncplay import projectURL, version as syncplay_version
 
+
 def read(fname):
-    with open(fname, 'r') as f:
+    with open(fname, "r") as f:
         return f.read()
 
-installRequirements = read('requirements.txt').splitlines() +\
-                        read('requirements_gui.txt').splitlines()
+
+installRequirements = (
+    read("requirements.txt").splitlines() + read("requirements_gui.txt").splitlines()
+)
 
 setuptools.setup(
     name="syncplay",
     version=syncplay_version,
     author="Syncplay",
     author_email="dev@syncplay.pl",
-    description=' '.join([
-        'Client/server to synchronize media playback',
-        'on mpv/VLC/MPC-HC/MPC-BE on many computers'
-    ]),
-    long_description=read('README.md'),
+    description=" ".join(
+        [
+            "Client/server to synchronize media playback",
+            "on mpv/VLC/MPC-HC/MPC-BE on many computers",
+        ]
+    ),
+    long_description=read("README.md"),
     long_description_content_type="text/markdown",
     url=projectURL,
-    download_url=projectURL + 'download/',
+    download_url=projectURL + "download/",
     packages=setuptools.find_packages(),
     install_requires=installRequirements,
     python_requires=">=3.4",
     entry_points={
-        'console_scripts': [
-            'syncplay-server = syncplay.ep_server:main',
+        "console_scripts": [
+            "syncplay-server = syncplay.ep_server:main",
         ],
-        'gui_scripts': [
-            'syncplay = syncplay.ep_client:main',
-        ]
+        "gui_scripts": [
+            "syncplay = syncplay.ep_client:main",
+        ],
     },
     include_package_data=True,
     classifiers=[
@@ -60,6 +65,6 @@ setuptools.setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Topic :: Internet",
-        "Topic :: Multimedia :: Video"
+        "Topic :: Multimedia :: Video",
     ],
 )
